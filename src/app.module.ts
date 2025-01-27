@@ -9,7 +9,9 @@ import {
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerMiddleware } from './common/middlewares/logger.middleware';
+import { TypeOrmConfigService } from './config/typeorm';
 import { validate } from './config/validate';
 import { HealthModule } from './modules/health/health.module';
 
@@ -21,10 +23,14 @@ import { HealthModule } from './modules/health/health.module';
       envFilePath: '.env',
       validate: validate,
     }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useClass: TypeOrmConfigService,
+    }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       playground: true,
-      // autoSchemaFile: true,
+      autoSchemaFile: true,
       sortSchema: true,
       typePaths: ['src/database/graphQL/**/*.graphql'],
     }),

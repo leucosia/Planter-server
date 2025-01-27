@@ -1,10 +1,21 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
-import { IsUrl, validateSync } from 'class-validator';
+import { IsNumber, IsString, validateSync } from 'class-validator';
 
 class EnvironmentVariables {
-  @IsUrl({ protocols: ['http', 'https'] })
-  DB_URL: string;
+  @IsString()
+  DB_TYPE: TypeOrmModuleOptions['type'];
+  @IsString()
+  DB_HOST: string;
+  @IsNumber()
+  DB_PORT: number;
+  @IsString()
+  DB_USERNAME: string;
+  @IsString()
+  DB_PASSWORD: string;
+  @IsString()
+  DB_DATABASE: string;
 }
 
 export function validate(config: Record<string, unknown>) {

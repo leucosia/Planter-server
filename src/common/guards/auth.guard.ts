@@ -6,25 +6,30 @@ import {
   mixin,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import dayjs from 'dayjs';
 import { Request } from 'express';
-import { HeadersKey } from '../constants/headers';
+import { HealthService } from 'src/modules/health/health.service';
 
+/**
+ * AuthGuard 믹스인
+ *
+ * **테스트 코드**
+ * - `@UseGuards(AuthGuard())` 데코레이터를 통해 사용 가능
+ * -  ?auth=test 로 요청 시 통과, 쿼리에 있는 값을 통해 허용되는지 체크하는 코드
+ */
 const AuthGuard = (): Type<CanActivate> => {
   @Injectable()
   class AuthGuardMixin implements CanActivate {
-    constructor(private reflector: Reflector) {}
+    constructor(
+      private reflector: Reflector,
+      private readonly healthService: HealthService,
+    ) {}
 
-    canActivate(context: ExecutionContext) {
+    async canActivate(context: ExecutionContext) {
       const request: Request = context.switchToHttp().getRequest();
-      const {
-        [HeadersKey.RequestId]: requestId,
-        [HeadersKey.Timestamp]: timestamp = dayjs().valueOf(),
-      } = request.headers;
 
-      const path = request.path;
+      const test = await this.healthService.getHealthCheck();
 
-      return true;
+      return test.some((x) => x.name === request.query?.['auth']);
     }
   }
 

@@ -1,13 +1,23 @@
 /* eslint-disable @typescript-eslint/require-await */
-import { Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { CreateHealthCheckDto } from './dto/create.dto';
+import { HealthCheck } from './entities/health.entity';
+import { HealthService } from './health.service';
 
-@Resolver('HealthCheck')
+@Resolver(() => HealthCheck)
 export class HealthResolver {
-  @Query()
+  constructor(private readonly healthService: HealthService) {}
+
+  @Query(() => [HealthCheck])
   async getHealthCheck() {
-    return [
-      { id: 1, name: 'qwer' },
-      { id: 2, name: 'test' },
-    ];
+    return this.healthService.getHealthCheck();
+  }
+
+  @Mutation(() => Boolean)
+  createHealthCheck(
+    @Args() createHealthCheckDto: CreateHealthCheckDto,
+  ): boolean {
+    console.log(createHealthCheckDto);
+    return true;
   }
 }

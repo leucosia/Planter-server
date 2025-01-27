@@ -4,6 +4,9 @@ import { applyDecorators } from '@nestjs/common';
 import { Transform } from 'class-transformer';
 import { IsBoolean as OriginalIsBoolean } from 'class-validator';
 
+/**
+ * `class-validator` 의 `IsBoolean`은 제대로 동작하지 않기 때문에, 커스텀으로 사용합니다
+ */
 export function IsBoolean() {
   return applyDecorators(ToBoolean(), OriginalIsBoolean());
 }

@@ -21,6 +21,10 @@ export class HealthController {
   @UseGuards(AuthGuard())
   @Get('auth')
   getWithGuard(@Query() query: any, @RequestPlatform() platform: Platform) {
+    this.HealthResolver.createHealthCheck({
+      name: 'test',
+      id: 1,
+    });
     return { ...query, platform };
   }
 
