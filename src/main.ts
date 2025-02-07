@@ -9,7 +9,7 @@ async function bootstrap() {
     .setTitle("Planter API Swagger")
     .setDescription("Planter API 문서")
     .setVersion("1.0.0")
-    .addTag("oauth", "로그인 관련입니다.")
+    .addTag("auth", "로그인 관련입니다.")
     .addBearerAuth()
     .build();
 
