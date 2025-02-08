@@ -12,6 +12,8 @@ export class AuthLoginBody implements User {
 
     name: string;
 
+    photo: string | null;
+
     createdAt: Date;
 
     updateAt: Date;
