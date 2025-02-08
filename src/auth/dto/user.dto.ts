@@ -10,6 +10,8 @@ export class UserDto implements User {
 
     name: string;
 
+    photo: string;
+
     createdAt: Date;
 
     updateAt: Date;
