@@ -10,6 +10,7 @@ import { AuthSignupResponse } from './dto/auth.signup.response.dto';
 import { Authentication } from './dto/authentication.dto';
 import { AuthLoginBody } from './dto/auth.login.body.dto';
 import { AuthSignupBody } from './dto/auth.signup.body.dto';
+import { access } from 'fs';
 
 @Injectable()
 export class AuthService {
@@ -19,60 +20,79 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
 
-  async login(loginUser: AuthLoginBody): Promise<AuthLoginResponse> {
-    let user = await this.prisma.user.findFirst({
-      where: { email: loginUser.email },
-    });
-
-    // 유저가 있으면 accessToken Return
-    if (user) {
-      const payload: Payload = {
-        id: user.id,
-        email: user.email
-      }
-
-      return {
-        accessToken: this.jwtService.sign(payload)
-      }
-    }
-    else {
-      throw new UnauthorizedException('User Not Found');
-    }
+  private async createAccessToken(payload: Payload): Promise<string> {
+    const accessToken = this.jwtService.sign(payload, {
+       expiresIn: '15m',
+       secret: process.env.SECRETKEY
+      });
+    return accessToken
   }
 
-  async signup(createUser: AuthSignupBody): Promise<AuthSignupResponse> {
+  private async createRefreshToken(payload: Payload): Promise<string> {
+    const refreshToken = this.jwtService.sign(payload, { 
+      expiresIn: "7d",
+      secret: process.env.SECRETKEY
+    });
+    return refreshToken
+  }
+
+  async login(email: string, name: string): Promise<AuthLoginResponse> {
     let user = await this.prisma.user.findFirst({
-      where: { email: createUser.email },
+      where: { email: email },
     });
 
-    if (user) {
-      throw new UnauthorizedException("이미 가입된 유저입니다.");
-    }
-    else {
-      let user = await this.prisma.user.create({
+    // 유저가 없으면 회원 가입 후 Token Return
+    if (!user) {
+      user = await this.prisma.user.create({
         data: {
-          email: createUser.email,
-          name: createUser.name,
-          photo: createUser.imageUrl
+          email: email,
+          name: name
         }
       })
+    }
 
-      const payload: Payload = {
-        id: user.id,
-        email: user.email
-      }
+    const accessToken = await this.createAccessToken(user);
+    const refreshToken = await this.createRefreshToken(user);
 
-      return {
-        accessToken: this.jwtService.sign(payload)
-      }
+    return {
+      accessToken: accessToken,
+      refreshToken: refreshToken
     }
   }
 
-  private async createAccessToken(user: UserDto) {
-    return {
-      accessToken: await this.jwtService.signAsync({
-        email: user.email
-      })
+  async googleLogin(idToken: string): Promise<AuthLoginResponse> {
+    try {
+      const verifiedUser = await this.verifyGoogleToken(idToken);
+
+      // Error 나면 어떻하지?
+      return this.login(
+        verifiedUser.email,
+        verifiedUser.name
+      );
+    } catch (error) {
+      throw new UnauthorizedException('Google token verification failed: ' + error);
+    }
+  }
+
+  async verifyGoogleToken(idToken: string): Promise<{ email: string; name: string}> {
+    try {
+      const ticket = await this.client.verifyIdToken({
+        idToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+
+      const payload = ticket.getPayload();
+      if (!payload) throw new UnauthorizedException('Invalid token');
+
+      const { email, name } = payload;
+
+      if(!email || !name) {
+        throw new UnauthorizedException('Google account missing email or name')
+      }
+
+      return { email: email, name: name };
+    } catch (error) {
+      throw new UnauthorizedException('Invalid Google token');
     }
   }
 }

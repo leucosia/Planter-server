@@ -7,4 +7,10 @@ export class AuthLoginResponse {
     @IsJWT()
     @IsNotEmpty()
     accessToken: string;
+
+
+    @ApiProperty({ description: '로그인 응답으로 제공되는 refresh toekn입니다.'})
+    @IsJWT()
+    @IsNotEmpty()
+    refreshToken: string;
 }
