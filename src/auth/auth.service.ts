@@ -23,15 +23,19 @@ export class AuthService {
   private async createAccessToken(payload: Payload): Promise<string> {
     const accessToken = this.jwtService.sign(payload, {
        expiresIn: '15m',
-       secret: process.env.SECRETKEY
+       secret: process.env.SECRET_KEY
       });
     return accessToken
   }
 
   private async createRefreshToken(payload: Payload): Promise<string> {
-    const refreshToken = this.jwtService.sign(payload, { 
+    const refreshToken = this.jwtService.sign({
+      email: payload.email,
+      id: payload.id,
+      jti: this.generateJti()
+    }, { 
       expiresIn: "7d",
-      secret: process.env.SECRETKEY
+      secret: process.env.SECRET_KEY
     });
     return refreshToken
   }
@@ -53,6 +57,13 @@ export class AuthService {
 
     const accessToken = await this.createAccessToken(user);
     const refreshToken = await this.createRefreshToken(user);
+
+    await this.prisma.user.update({
+      where: { email },
+      data: {
+        refreshToken: refreshToken
+      }
+    })
 
     return {
       accessToken: accessToken,
@@ -94,5 +105,9 @@ export class AuthService {
     } catch (error) {
       throw new UnauthorizedException('Invalid Google token');
     }
+  }
+
+  private generateJti(): string {
+    return crypto.getRandomValues(new Uint32Array(16)).join('');
   }
 }

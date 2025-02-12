@@ -17,4 +17,6 @@ export class AuthLoginBody implements User {
     createdAt: Date;
 
     updateAt: Date;
+
+    refreshToken: string | null;
 }

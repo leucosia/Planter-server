@@ -10,10 +10,11 @@ export class UserDto implements User {
 
     name: string;
 
-    photo: string;
+    photo: string | null;
 
     createdAt: Date;
 
     updateAt: Date;
     
+    refreshToken: string | null;
 }
