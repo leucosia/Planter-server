@@ -1,20 +1,11 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { User } from '@prisma/client';
 import { OAuth2Client } from 'google-auth-library';
 import { PrismaService } from 'src/prisma.client';
-import { UserDto } from './dto/user.dto';
 import { AuthLoginResponse } from './dto/auth.login.response.dto'
 import { JwtService } from '@nestjs/jwt';
 import { Payload } from './payload.interface';
-import { AuthSignupResponse } from './dto/auth.signup.response.dto';
-import { Authentication } from './dto/authentication.dto';
-import { AuthLoginBody } from './dto/auth.login.body.dto';
-import { AuthSignupBody } from './dto/auth.signup.body.dto';
-import { access } from 'fs';
 import * as jwksClient from 'jwks-rsa';
 import * as jwt from 'jsonwebtoken';
-import { resolve } from 'path';
-import { rejects } from 'assert';
 
 @Injectable()
 export class AuthService {

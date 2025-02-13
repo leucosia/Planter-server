@@ -1,5 +1,4 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { User } from "@prisma/client";
 
 export class AuthGoogleLoginBody {
     @ApiProperty({
