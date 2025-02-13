@@ -40,6 +40,44 @@ export class AuthService {
     return refreshToken
   }
 
+  public async refreshToken(refresh_token: string): Promise<AuthLoginResponse> {
+    const user = await this.prisma.user.findFirst({
+      where: { 
+        refreshToken: refresh_token 
+      },
+    })
+
+    if (user && user.name) {
+      return this.login(
+        user.email,
+        user.name
+      )
+    } else {
+      throw new UnauthorizedException('Invalid Refresh Token');
+    }
+  }
+
+  private validateRefreshToken(refresh_token: string): boolean {
+    try {
+      // 토큰 디코드해서 만료 시간 확인
+      const decoded = this.jwtService.decode(refresh_token) as { exp: number };
+
+      if (!decoded || !decoded.exp) {
+        throw new UnauthorizedException('Invalid Refresh Token');
+      }
+
+      // 현재 시간과 만료 시간을 비교하여 토큰이 만료되었는지 확인
+      const currentTime = Math.floor(Date.now() / 1000);
+      if (currentTime > decoded.exp) {
+        throw new UnauthorizedException('Refresh Token Expired');
+      }
+
+      return true;
+    } catch (error) {
+      throw new UnauthorizedException('Error validating refresh token');
+    }
+  }
+
   async login(email: string, name: string): Promise<AuthLoginResponse> {
     let user = await this.prisma.user.findFirst({
       where: { email: email },
