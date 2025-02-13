@@ -11,14 +11,24 @@ import { Authentication } from './dto/authentication.dto';
 import { AuthLoginBody } from './dto/auth.login.body.dto';
 import { AuthSignupBody } from './dto/auth.signup.body.dto';
 import { access } from 'fs';
+import * as jwksClient from 'jwks-rsa';
+import * as jwt from 'jsonwebtoken';
+import { resolve } from 'path';
+import { rejects } from 'assert';
 
 @Injectable()
 export class AuthService {
   private client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+  private jwksClient: jwksClient.JwksClient;
+  
   constructor(
     private prisma: PrismaService,
-    private jwtService: JwtService
-  ) {}
+    private jwtService: JwtService,
+  ) {
+    this.jwksClient = jwksClient({
+      jwksUri: "https://appleid.apple.com/auth/keys",
+    });
+  }
 
   private async createAccessToken(payload: Payload): Promise<string> {
     const accessToken = this.jwtService.sign(payload, {
@@ -147,5 +157,56 @@ export class AuthService {
 
   private generateJti(): string {
     return crypto.getRandomValues(new Uint32Array(16)).join('');
+  }
+
+  async appleLogin(identityToken: string): Promise<AuthLoginResponse> {
+    try {
+      const verifiedUser = await this.verifyAppleToken(identityToken);
+
+      return this.login(
+        verifiedUser.email,
+        verifiedUser.name
+      );
+    } catch (error) {
+      throw new UnauthorizedException('Apple token verification failed: ' + error);
+    }
+  }
+
+  async verifyAppleToken(identityToken: string): Promise<{ email: string, name: string}> {
+    try {
+      // JWT에서 kid 추출
+      const decodeToken = this.jwtService.decode(identityToken, { complete: true }) as {
+        header: { kid: string; }
+        payload: { sub: string };
+      };
+      const keyIdFromToken = decodeToken.header.kid;
+
+      // 공개 키 가져오기
+      const key = await this.getKey(keyIdFromToken);
+
+      // JWT 검증
+      const verifiedToken = jwt.verify(identityToken, key, { algorithms: ['RS256'] }) as any;
+      
+      // 토큰 검증이 성공하면 사용자 이메일과 이름을 반환
+      return {
+        email: verifiedToken.email,
+        name: verifiedToken.name,
+      };
+    } catch (error) {
+      throw new UnauthorizedException('Apple token verification failed: ' + error);
+    }
+  }
+
+  // kid로 공개 키를 가져오는 함수
+  private async getKey(kid: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.jwksClient.getSigningKey(kid, (err, key) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(key?.getPublicKey)
+        }
+      })
+    })
   }
 }
