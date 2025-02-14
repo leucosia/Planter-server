@@ -1,45 +1,25 @@
-import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import dayjs from 'dayjs';
-import { NextFunction } from 'express';
-import helmet from 'helmet';
-import { uuidv7 } from 'uuidv7';
 import { AppModule } from './app.module';
-import { HeadersKey } from './common/constants/headers';
-import { ResponseTransformInterceptor } from './common/interceptors/response.interceptor';
-import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor';
-import { HttpExceptionFilter } from './common/pipes/httpException.pipe';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.use((req: Request, res: Response, next: NextFunction) => {
-    req.headers[HeadersKey.RequestId] = uuidv7();
-    req.headers[HeadersKey.Timestamp] = dayjs().valueOf();
-    next();
-  });
+  const app = await NestFactory.create(AppModule);
 
-  app.enableCors({
-    origin: '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Accept',
-  });
+  app.useGlobalPipes(new ValidationPipe());
 
-  app.use(helmet());
+  const config = new DocumentBuilder()
+    .setTitle("Planter API Swagger")
+    .setDescription("Planter API 문서")
+    .setVersion("1.0.0")
+    .addTag("auth", "로그인 관련입니다.")
+    .addBearerAuth()
+    .build();
 
-  app.useGlobalInterceptors(
-    new ResponseTransformInterceptor(),
-    new TimeoutInterceptor(),
-  );
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: false,
-      forbidNonWhitelisted: false,
-      transform: true,
-    }),
-  );
-  app.useGlobalFilters(new HttpExceptionFilter());
+  const document = SwaggerModule.createDocument(app, config);
+  
+  SwaggerModule.setup('api', app, document);
+
   await app.listen(process.env.PORT ?? 3000);
 }
-
-void bootstrap();
+bootstrap();

@@ -1,8 +1,0 @@
-type HealthCheck {
-  id: String!
-  name: Int!
-}
-
-type Query {
-  getHealthCheck: [HealthCheck]
-}
