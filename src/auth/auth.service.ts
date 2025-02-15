@@ -32,7 +32,7 @@ export class AuthService {
   private async createRefreshToken(payload: Payload): Promise<string> {
     const refreshToken = this.jwtService.sign({
       email: payload.email,
-      id: payload.id,
+      id: payload.user_id,
       jti: this.generateJti()
     }, { 
       expiresIn: "7d",
