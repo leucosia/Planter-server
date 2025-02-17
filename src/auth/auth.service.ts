@@ -195,7 +195,7 @@ export class AuthService {
         if (err) {
           reject(err);
         } else {
-          resolve(key?.getPublicKey)
+          resolve(key?.getPublicKey())
         }
       })
     })
