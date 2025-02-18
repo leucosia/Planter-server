@@ -8,11 +8,64 @@ datasource db {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique
-  name         String?
-  photo        String?
-  createdAt    DateTime @default(now())
-  updateAt     DateTime @updatedAt
-  refreshToken String?
+  email           String            @unique
+  name            String?
+  photo           String?
+  createdAt       DateTime          @default(now())
+  updateAt        DateTime          @updatedAt
+  refreshToken    String?
+  user_id         Int               @id @default(autoincrement())
+  todos           todos[]
+  user_categories user_categories[]
+}
+
+model user_categories {
+  user_category_id Int     @id @default(autoincrement())
+  user_id          Int
+  color            String
+  todos            todos[]
+  user             User    @relation(fields: [user_id], references: [user_id])
+}
+
+model todos {
+  todo_id          Int             @id @default(autoincrement())
+  title            String
+  description      String?
+  start_date       DateTime        @default(now())
+  end_date         DateTime        @updatedAt
+  user_id          Int
+  user_plant_id    Int
+  user_category_id Int
+  complete_todos   complete_todos?
+  user_category    user_categories @relation(fields: [user_category_id], references: [user_category_id])
+  user             User            @relation(fields: [user_id], references: [user_id])
+  user_plants      user_plants     @relation(fields: [user_plant_id], references: [user_plant_id])
+}
+
+model complete_todos {
+  complete_todo_id Int      @id @default(autoincrement())
+  is_done          Boolean  @default(false)
+  complete_at      DateTime @updatedAt
+  todo_id          Int      @unique
+  todos            todos    @relation(fields: [todo_id], references: [todo_id])
+}
+
+model plants {
+  plant_id      Int           @id @default(autoincrement())
+  next_plant_id Int
+  image         String
+  max_exp       Int
+  user_plants   user_plants[]
+}
+
+model user_plants {
+  user_plant_id  Int      @id @default(autoincrement())
+  plant_id       Int
+  exp            Int
+  name           String
+  plants_is_done Boolean  @default(false)
+  start_date     DateTime @default(now())
+  end_date       DateTime @updatedAt
+  todos          todos[]
+  plant          plants   @relation(fields: [plant_id], references: [plant_id])
 }

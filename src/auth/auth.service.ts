@@ -4,8 +4,10 @@ import { PrismaService } from 'src/prisma.client';
 import { AuthLoginResponse } from './dto/auth.login.response.dto'
 import { JwtService } from '@nestjs/jwt';
 import { Payload } from './payload.interface';
+import * as admin from 'firebase-admin';
 import * as jwksClient from 'jwks-rsa';
 import * as jwt from 'jsonwebtoken';
+import * as path from 'path';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +21,14 @@ export class AuthService {
     this.jwksClient = jwksClient({
       jwksUri: "https://appleid.apple.com/auth/keys",
     });
+    
+    if (admin.apps.length == 0) {
+      admin.initializeApp({
+        credential: admin.credential.cert(
+          path.join(__dirname, '../../planter-77541-firebase-adminsdk-fbsvc-29cdca1ce1.json')
+        ),
+      });
+    }
   }
 
   private async createAccessToken(payload: Payload): Promise<string> {
@@ -32,7 +42,7 @@ export class AuthService {
   private async createRefreshToken(payload: Payload): Promise<string> {
     const refreshToken = this.jwtService.sign({
       email: payload.email,
-      id: payload.id,
+      id: payload.user_id,
       jti: this.generateJti()
     }, { 
       expiresIn: "7d",
@@ -126,23 +136,18 @@ export class AuthService {
 
   async verifyGoogleToken(idToken: string): Promise<{ email: string; name: string}> {
     try {
-      const ticket = await this.client.verifyIdToken({
-        idToken,
-        audience: process.env.GOOGLE_CLIENT_ID,
-      });
-
-      const payload = ticket.getPayload();
-      if (!payload) throw new UnauthorizedException('Invalid token');
-
-      const { email, name } = payload;
-
-      if(!email || !name) {
-        throw new UnauthorizedException('Google account missing email or name')
+      const decodedToken = await admin.auth().verifyIdToken(idToken);
+      console.log(decodedToken);
+      if (decodedToken && decodedToken.email) {
+        return {
+          email: decodedToken.email,
+          name: "Google-User"
+        }
+      } else {
+        throw new UnauthorizedException('Google token verification failed');
       }
-
-      return { email: email, name: name };
     } catch (error) {
-      throw new UnauthorizedException('Invalid Google token');
+      throw new UnauthorizedException('Google token verification failed: ' + error);
     }
   }
 
@@ -195,7 +200,7 @@ export class AuthService {
         if (err) {
           reject(err);
         } else {
-          resolve(key?.getPublicKey)
+          resolve(key?.getPublicKey())
         }
       })
     })
