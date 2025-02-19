@@ -104,6 +104,15 @@ export class AuthService {
       })
     }
 
+    if (user) {
+      await this.prisma.user_categories.create({
+        data: {
+          user_id: user.user_id,
+          color: "#74c270"
+        }
+      })
+    }
+
     const accessToken = await this.createAccessToken(user);
     const refreshToken = await this.createRefreshToken(user);
 
