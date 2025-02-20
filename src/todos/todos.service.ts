@@ -67,4 +67,13 @@ export class TodosService {
       }
     })
   }
+
+  async findOne(todo_id: number, user_id: number) {
+    return this.prisma.todos.findUnique({
+      where: {
+        user_id: user_id,
+        todo_id: todo_id
+      }
+    })
+  }
 }

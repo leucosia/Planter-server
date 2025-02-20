@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Request, Param, ParseIntPipe } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateTodoBodyDto } from './dto/create.todo.body.dto';
@@ -33,5 +33,16 @@ export class TodosController {
   async findAll(@Request() req) {
     const userId = req.user.userId
     return await this.todosService.findAll(userId)
+  }
+
+  @ApiOperation({
+    summary: "TODO 개별 조회",
+    description: "TODO ID 입력 시 TODO를 조회"
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) todo_id: number, @Request() req) {
+    const user_id = req.user.userId
+    return await this.todosService.findOne(todo_id, user_id)
   }
 }
