@@ -1,9 +1,9 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UpdateTodoDto } from './dto/update-todo.dto';
 import { PrismaService } from 'src/prisma.client';
 import { CreateTodoBodyDto } from './dto/create.todo.body.dto';
-import { Prisma } from '@prisma/client';
 import { CreateTodoResponseDTO } from './dto/create.todo.response.dto';
+import { UpdateTodoBodyDto } from './dto/update.todo.body.dto';
+import { UpdateTodoResponseDto } from './dto/update.todo.response.dto';
 
 @Injectable()
 export class TodosService {
@@ -75,6 +75,49 @@ export class TodosService {
         todo_id: todo_id
       }
     })
+  }
+
+  async update(todo_id: number, user_id: number, updateTodoDto: UpdateTodoBodyDto): Promise<UpdateTodoResponseDto> {
+    try {
+      const todo = await this.prisma.todos.findUnique({
+        where: {
+          todo_id: todo_id,
+          user_id: user_id
+        }
+      })
+
+      if (todo) {
+        const new_todo = await this.prisma.todos.update({
+          where: {
+            todo_id: todo_id,
+            user_id: user_id
+          },
+          data: {
+            todo_id: todo.todo_id,
+            user_id: todo.user_id,
+            title: updateTodoDto.title,
+            description: updateTodoDto.description,
+            start_date: updateTodoDto.start_date,
+            end_date: updateTodoDto.end_date,
+            user_category_id: updateTodoDto.user_category_id,
+            user_plant_id: todo.user_plant_id
+          }
+        })
+        return {
+          todo_id: new_todo.todo_id,
+          title: new_todo.title,
+          description: new_todo.description,
+          start_date: new_todo.start_date,
+          end_date: new_todo.end_date,
+          user_category_id: new_todo.user_category_id,
+          user_plants_id: new_todo.user_plant_id
+        }
+      } else {
+        throw new UnauthorizedException("Invalid TODO Update")
+      }
+    } catch(error) {
+      throw new UnauthorizedException("Invalid TODO Update")
+    }
   }
 
   async remove(todo_id: number, user_id: number) {

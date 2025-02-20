@@ -4,6 +4,8 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagg
 import { CreateTodoBodyDto } from './dto/create.todo.body.dto';
 import { CreateTodoResponseDTO } from './dto/create.todo.response.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { UpdateTodoBodyDto } from './dto/update.todo.body.dto';
+import { UpdateTodoResponseDto } from './dto/update.todo.response.dto';
 
 
 @Controller('todos')
@@ -44,6 +46,19 @@ export class TodosController {
   async findOne(@Param('id', ParseIntPipe) todo_id: number, @Request() req) {
     const user_id = req.user.userId
     return await this.todosService.findOne(todo_id, user_id)
+  }
+
+  @ApiOperation({
+    summary: "TODO 업데이트",
+    description: "TODO 업데이트 API"
+  })
+  @UseGuards(AuthGuard("jwt"))
+  @ApiBody({ type: UpdateTodoBodyDto })
+  @ApiResponse({ type: UpdateTodoResponseDto })
+  @Post(':id')
+  async update(@Param('id', ParseIntPipe) todo_id: number, @Request() req, @Body() updateTodoDto: UpdateTodoBodyDto) {
+    const user_id = req.user.user_id
+    return await this.todosService.update(todo_id, user_id, updateTodoDto)
   }
 
   @ApiOperation({
