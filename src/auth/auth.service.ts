@@ -96,15 +96,22 @@ export class AuthService {
 
     // 유저가 없으면 회원 가입 후 Token Return
     if (!user) {
+      // 유저 생성
       user = await this.prisma.user.create({
         data: {
           email: email,
-          name: name
+          name: name,
         }
       })
-    }
 
-    if (user) {
+      // 기본 식물 생성
+      await this.prisma.user_plants.create({
+        data: {
+          user_id: user.user_id,
+        },
+      })
+
+      // 기본 카테고리 생성
       await this.prisma.user_categories.create({
         data: {
           user_id: user.user_id,
