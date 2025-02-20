@@ -59,4 +59,12 @@ export class TodosService {
       throw new UnauthorizedException("Invalid TODO Creation")
     }
   }
+
+  async findAll(user_id: number) {
+    return this.prisma.todos.findMany({
+      where: {
+        user_id: user_id
+      }
+    })
+  }
 }

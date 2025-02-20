@@ -23,4 +23,15 @@ export class TodosController {
     const userId = req.user.userId
     return await this.todosService.create(createTodoDto, userId);
   }
+
+  @ApiOperation({
+    summary: "TODO 목록 조회",
+    description: "TODO 목록 조회 API\n현재 유저의 TODO 목록을 가져옵니다."
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @Get()
+  async findAll(@Request() req) {
+    const userId = req.user.userId
+    return await this.todosService.findAll(userId)
+  }
 }
