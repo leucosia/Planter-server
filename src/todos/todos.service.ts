@@ -76,4 +76,13 @@ export class TodosService {
       }
     })
   }
+
+  async remove(todo_id: number, user_id: number) {
+    return this.prisma.todos.delete({
+      where: {
+        todo_id: todo_id,
+        user_id: user_id
+      }
+    })
+  }
 }

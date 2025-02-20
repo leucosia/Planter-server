@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Request, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Request, Param, ParseIntPipe, Delete } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateTodoBodyDto } from './dto/create.todo.body.dto';
@@ -44,5 +44,16 @@ export class TodosController {
   async findOne(@Param('id', ParseIntPipe) todo_id: number, @Request() req) {
     const user_id = req.user.userId
     return await this.todosService.findOne(todo_id, user_id)
+  }
+
+  @ApiOperation({
+    summary: "TODO 삭제",
+    description: "TODO 삭제 API"
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) todo_id: number, @Request() req) {
+    const user_id = req.user.userId
+    return await this.todosService.remove(todo_id, user_id)
   }
 }
