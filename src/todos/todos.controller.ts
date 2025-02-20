@@ -1,34 +1,26 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Request } from '@nestjs/common';
 import { TodosService } from './todos.service';
-import { CreateTodoDto } from './dto/create-todo.dto';
-import { UpdateTodoDto } from './dto/update-todo.dto';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { CreateTodoBodyDto } from './dto/create.todo.body.dto';
+import { CreateTodoResponseDTO } from './dto/create.todo.response.dto';
+import { AuthGuard } from '@nestjs/passport';
+
 
 @Controller('todos')
+@ApiBearerAuth()
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
+  @ApiOperation({
+    summary: "TODO 생성",
+    description: "TODO 생성 API"
+  })
+  @ApiBody({ type: CreateTodoBodyDto })
+  @ApiResponse({ type: CreateTodoResponseDTO})
+  @UseGuards(AuthGuard('jwt'))
   @Post()
-  create(@Body() createTodoDto: CreateTodoDto) {
-    return this.todosService.create(createTodoDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.todosService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.todosService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
-    return this.todosService.update(+id, updateTodoDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.todosService.remove(+id);
+  async create(@Body() createTodoDto: CreateTodoBodyDto, @Request() req) {
+    const userId = req.user.userId
+    return await this.todosService.create(createTodoDto, userId);
   }
 }
