@@ -153,7 +153,6 @@ export class AuthService {
   async verifyGoogleToken(idToken: string): Promise<{ email: string; name: string}> {
     try {
       const decodedToken = await admin.auth().verifyIdToken(idToken);
-      console.log(decodedToken);
       if (decodedToken && decodedToken.email) {
         return {
           email: decodedToken.email,

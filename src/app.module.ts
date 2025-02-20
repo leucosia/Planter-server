@@ -5,6 +5,7 @@ import { PlanterModule } from './planter/planter.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { TodosModule } from './todos/todos.module';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [PlanterModule, 
@@ -16,6 +17,8 @@ import { TodosModule } from './todos/todos.module';
             TodosModule
           ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,
+    JwtService
+  ],
 })
 export class AppModule {}
