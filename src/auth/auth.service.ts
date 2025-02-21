@@ -96,10 +96,26 @@ export class AuthService {
 
     // 유저가 없으면 회원 가입 후 Token Return
     if (!user) {
+      // 유저 생성
       user = await this.prisma.user.create({
         data: {
           email: email,
-          name: name
+          name: name,
+        }
+      })
+
+      // 기본 식물 생성
+      await this.prisma.user_plants.create({
+        data: {
+          user_id: user.user_id,
+        },
+      })
+
+      // 기본 카테고리 생성
+      await this.prisma.user_categories.create({
+        data: {
+          user_id: user.user_id,
+          color: "#74c270"
         }
       })
     }
@@ -137,7 +153,6 @@ export class AuthService {
   async verifyGoogleToken(idToken: string): Promise<{ email: string; name: string}> {
     try {
       const decodedToken = await admin.auth().verifyIdToken(idToken);
-      console.log(decodedToken);
       if (decodedToken && decodedToken.email) {
         return {
           email: decodedToken.email,

@@ -17,6 +17,7 @@ model User {
   user_id         Int               @id @default(autoincrement())
   todos           todos[]
   user_categories user_categories[]
+  user_plants     user_plants[]
 }
 
 model user_categories {
@@ -60,12 +61,14 @@ model plants {
 
 model user_plants {
   user_plant_id  Int      @id @default(autoincrement())
-  plant_id       Int
-  exp            Int
-  name           String
+  user_id        Int
+  plant_id       Int      @default(0)
+  exp            Int      @default(0)
+  name           String?
   plants_is_done Boolean  @default(false)
   start_date     DateTime @default(now())
   end_date       DateTime @updatedAt
   todos          todos[]
   plant          plants   @relation(fields: [plant_id], references: [plant_id])
+  user           User     @relation(fields: [user_id], references: [user_id])
 }
