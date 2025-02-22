@@ -8,6 +8,7 @@ import * as admin from 'firebase-admin';
 import * as jwksClient from 'jwks-rsa';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
+import { decode } from 'punycode';
 
 @Injectable()
 export class AuthService {
@@ -124,7 +125,7 @@ export class AuthService {
     const refreshToken = await this.createRefreshToken(user);
 
     await this.prisma.user.update({
-      where: { email },
+      where: { email: email },
       data: {
         refreshToken: refreshToken
       }
@@ -219,5 +220,18 @@ export class AuthService {
         }
       })
     })
+  }
+
+  // Access Token 검증 함수
+  verifyAccessToken(access_token: string) {
+    try {
+      this.jwtService.verify(access_token, { secret: process.env.SECRET_KEY })
+      return { message: "VALID_TOKEN"};
+    } catch(error) {
+      if (error.name == "TokenExpiredError") {
+        throw new UnauthorizedException("EXPIRED_TOKEN")
+      }
+      throw new UnauthorizedException("INVALID_TOKEN")
+    }
   }
 }
