@@ -33,7 +33,7 @@ export class AuthService {
 
   private async createAccessToken(payload: Payload): Promise<string> {
     const accessToken = this.jwtService.sign(payload, {
-       expiresIn: '15m',
+       expiresIn: '3h',
        secret: process.env.SECRET_KEY
       });
     return accessToken
