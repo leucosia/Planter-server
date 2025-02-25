@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { TodosModule } from './todos/todos.module';
 import { JwtService } from '@nestjs/jwt';
+import { JwtStrategy } from './auth/jwt.strategy';
 
 @Module({
   imports: [PlanterModule, 
@@ -18,7 +19,8 @@ import { JwtService } from '@nestjs/jwt';
           ],
   controllers: [AppController],
   providers: [AppService,
-    JwtService
+    JwtService,
+    JwtStrategy
   ],
 })
 export class AppModule {}

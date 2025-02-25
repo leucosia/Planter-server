@@ -6,10 +6,11 @@ import { CreateTodoResponseDTO } from './dto/create.todo.response.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateTodoBodyDto } from './dto/update.todo.body.dto';
 import { UpdateTodoResponseDto } from './dto/update.todo.response.dto';
+import { AuthJWTGuard } from 'src/auth/auth.jwt.guard';
 
 
 @Controller('todos')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthJWTGuard)
 @ApiBearerAuth()
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
