@@ -10,6 +10,12 @@ export class CategoryService {
   ) {}
 
   async create(createCategoryDto: CreateCategoryDto, user_id: number) {
+    // #이 붙었는지 검사
+    if (!createCategoryDto.color?.includes("#")) {
+      throw new UnauthorizedException("INVALID_REQUEST")
+    }
+
+    // 색상 중복 확인
     const category = await this.prisma.user_categories.findFirst({
       where: {
         user_id: user_id,

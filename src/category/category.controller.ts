@@ -13,7 +13,7 @@ export class CategoryController {
 
   @ApiOperation({
     summary: "카테고리 생성 API",
-    description: "카테고리 생성 API, 색상 중복 불가능"
+    description: "카테고리 생성 API 입니다. 색상 중복은 불가능 하고, 색상에는 '#'이 들어가야 합니다."
   })
   @ApiBody({ type: CreateCategoryDto })
   @Post()
@@ -44,7 +44,7 @@ export class CategoryController {
 
   @ApiOperation({
     summary: "카테고리 색상 변경 API",
-    description: "category id 및 색상을 사용하여 category 색상 변경 API 입니다."
+    description: "category id 및 색상을 사용하여 category 색상 변경 API 입니다. 색상에는 '#'이 들어가야 합니다."
   })
   @ApiBody({ type: UpdateCategoryDto })
   @Post(':id')
