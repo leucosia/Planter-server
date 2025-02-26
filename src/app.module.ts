@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TodosModule } from './todos/todos.module';
 import { JwtService } from '@nestjs/jwt';
 import { JwtStrategy } from './auth/jwt.strategy';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [PlanterModule, 
@@ -15,7 +16,8 @@ import { JwtStrategy } from './auth/jwt.strategy';
               isGlobal: true,
               envFilePath: '.${process.env.NODE_ENV}.env',
             }),
-            TodosModule
+            TodosModule,
+            CategoryModule
           ],
   controllers: [AppController],
   providers: [AppService,
