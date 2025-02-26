@@ -28,4 +28,12 @@ export class CategoryService {
 
     return '중복된 카테고리 색상';
   }
+
+  async findAll(userId: number) {
+    return await this.prisma.user_categories.findMany({
+      where: {
+        user_id: userId
+      }
+    })
+  }
 }

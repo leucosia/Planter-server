@@ -17,8 +17,18 @@ export class CategoryController {
   })
   @ApiBody({ type: CreateCategoryDto })
   @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto, @Request() req) {
+  async create(@Body() createCategoryDto: CreateCategoryDto, @Request() req) {
     const userId = req.user.userId
     return this.categoryService.create(createCategoryDto, userId);
+  }
+
+  @ApiOperation({
+    summary: "카테고리 목록 조회 API",
+    description: "카테고리 목록을 가져오는 API 입니다."
+  })
+  @Get()
+  async findAll(@Request() req) {
+    const userId = req.user.userId
+    return this.categoryService.findAll(userId)
   }
 }
