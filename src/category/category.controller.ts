@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, ParseIntPipe } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create.category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import { UpdateCategoryDto } from './dto/update.category.dto';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiProperty } from '@nestjs/swagger';
 import { AuthJWTGuard } from 'src/auth/auth.jwt.guard';
 
@@ -40,5 +40,16 @@ export class CategoryController {
   async findCategory(@Param('id', ParseIntPipe) categoryId: number, @Request() req) {
     const userId = req.user.userId
     return this.categoryService.findOne(categoryId, userId)
+  }
+
+  @ApiOperation({
+    summary: "카테고리 색상 변경 API",
+    description: "category id 및 색상을 사용하여 category 색상 변경 API 입니다."
+  })
+  @ApiBody({ type: UpdateCategoryDto })
+  @Post(':id')
+  async updateCategory(@Param('id', ParseIntPipe) categoryId: number, @Request() req, @Body() updateCategoryDto: UpdateCategoryDto){
+    const userId = req.user.userId
+    return this.categoryService.updateCategory(categoryId, userId, updateCategoryDto)
   }
 }
