@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, ParseIntPipe } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create.category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -30,5 +30,15 @@ export class CategoryController {
   async findAll(@Request() req) {
     const userId = req.user.userId
     return this.categoryService.findAll(userId)
+  }
+
+  @ApiOperation({
+    summary: "카테고리 색상 조회 API",
+    description: "category id를 이용하여 해당 색상을 조회하는 API 입니다."
+  })
+  @Get(':id')
+  async findCategory(@Param('id', ParseIntPipe) categoryId: number, @Request() req) {
+    const userId = req.user.userId
+    return this.categoryService.findOne(categoryId, userId)
   }
 }

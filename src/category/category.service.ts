@@ -36,4 +36,13 @@ export class CategoryService {
       }
     })
   }
+
+  async findOne(categoryId: number, userId: number) {
+    return await this.prisma.user_categories.findUnique({
+      where: {
+        user_category_id: categoryId,
+        user_id: userId
+      }
+    })
+  }
 }
