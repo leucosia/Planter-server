@@ -1,26 +1,31 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCategoryDto } from './dto/create-category.dto';
+import { CreateCategoryDto } from './dto/create.category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { PrismaService } from 'src/prisma.client';
 
 @Injectable()
 export class CategoryService {
-  create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
-  }
+  constructor(
+    private prisma: PrismaService
+  ) {}
 
-  findAll() {
-    return `This action returns all category`;
-  }
+  async create(createCategoryDto: CreateCategoryDto, user_id: number) {
+    const category = await this.prisma.user_categories.findFirst({
+      where: {
+        user_id: user_id,
+        color: createCategoryDto.color
+      }
+    })
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
-  }
+    if (!category) {
+      return await this.prisma.user_categories.create({
+        data: {
+          user_id: user_id,
+          color: createCategoryDto.color
+        }
+      })
+    }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+    return '중복된 카테고리 색상';
   }
 }
