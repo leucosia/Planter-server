@@ -4,5 +4,5 @@ export class AuthAppleLoginBody {
     @ApiProperty({
         description: "Apple IdentityToken"
     })
-    identityToken: string;
+    token: string;
 }
