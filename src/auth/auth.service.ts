@@ -137,9 +137,9 @@ export class AuthService {
     }
   }
 
-  async googleLogin(idToken: string): Promise<AuthLoginResponse> {
+  async googleLogin(token: string): Promise<AuthLoginResponse> {
     try {
-      const verifiedUser = await this.verifyGoogleToken(idToken);
+      const verifiedUser = await this.verifyGoogleToken(token);
 
       // Error 나면 어떻하지?
       return this.login(
@@ -151,9 +151,9 @@ export class AuthService {
     }
   }
 
-  async verifyGoogleToken(idToken: string): Promise<{ email: string; name: string}> {
+  async verifyGoogleToken(token: string): Promise<{ email: string; name: string}> {
     try {
-      const decodedToken = await admin.auth().verifyIdToken(idToken);
+      const decodedToken = await admin.auth().verifyIdToken(token);
       if (decodedToken && decodedToken.email) {
         return {
           email: decodedToken.email,
@@ -171,9 +171,9 @@ export class AuthService {
     return crypto.getRandomValues(new Uint32Array(16)).join('');
   }
 
-  async appleLogin(identityToken: string): Promise<AuthLoginResponse> {
+  async appleLogin(token: string): Promise<AuthLoginResponse> {
     try {
-      const verifiedUser = await this.verifyAppleToken(identityToken);
+      const verifiedUser = await this.verifyAppleToken(token);
 
       return this.login(
         verifiedUser.email,
@@ -184,10 +184,10 @@ export class AuthService {
     }
   }
 
-  async verifyAppleToken(identityToken: string): Promise<{ email: string, name: string}> {
+  async verifyAppleToken(token: string): Promise<{ email: string, name: string}> {
     try {
       // JWT에서 kid 추출
-      const decodeToken = this.jwtService.decode(identityToken, { complete: true }) as {
+      const decodeToken = this.jwtService.decode(token, { complete: true }) as {
         header: { kid: string; }
         payload: { sub: string };
       };
@@ -197,7 +197,7 @@ export class AuthService {
       const key = await this.getKey(keyIdFromToken);
 
       // JWT 검증
-      const verifiedToken = jwt.verify(identityToken, key, { algorithms: ['RS256'] }) as any;
+      const verifiedToken = jwt.verify(token, key, { algorithms: ['RS256'] }) as any;
       
       // 토큰 검증이 성공하면 사용자 이메일과 이름을 반환
       return {

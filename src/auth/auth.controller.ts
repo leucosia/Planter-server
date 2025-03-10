@@ -15,24 +15,24 @@ export class AuthController {
   
   @ApiOperation({
     summary: "구글 로그인",
-    description: "구글 로그인 API"
+    description: "구글 로그인 API. firebase auth token 값을 보내줘야합니다."
   })
   @Post("google")
   @ApiBody({ type: AuthGoogleLoginBody })
-  @ApiResponse({ type: AuthLoginResponse})
-  async googleLogin(@Body('idToken') idToken: string) {
-    return this.authService.googleLogin(idToken);
+  @ApiResponse({ type: AuthLoginResponse })
+  async googleLogin(@Body('token') token: string) {
+    return this.authService.googleLogin(token);
   }
 
   @ApiOperation({
     summary: "Apple 로그인",
-    description: "Apple 로그인 API"
+    description: "Apple 로그인 API. identityToken 값을 보내줘야합니다."
   })
   @Post("apple")
   @ApiBody({ type: AuthAppleLoginBody })
   @ApiResponse({ type: AuthLoginResponse })
-  async appleLogin(@Body('identityToken') identityToken: string ) {
-    return this.authService.appleLogin(identityToken);
+  async appleLogin(@Body('token') token: string ) {
+    return this.authService.appleLogin(token);
   }
 
   @ApiOperation({
@@ -41,7 +41,7 @@ export class AuthController {
   })
   @Post("refresh")
   @ApiBody({ type: AuthRefreshTokenBody })
-  @ApiResponse({ type: AuthLoginResponse})
+  @ApiResponse({ type: AuthLoginResponse })
   async login(@Body('refresh_token') refresh_token: string) {
     return this.authService.refreshToken(refresh_token);
   }
