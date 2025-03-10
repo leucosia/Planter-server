@@ -222,11 +222,22 @@ export class AuthService {
     })
   }
 
-  // Access Token 검증 함수
-  verifyAccessToken(access_token: string) {
+  // 유저 정보 반환해주는 함수
+  async getUserInfo(access_token: string) {
     try {
-      this.jwtService.verify(access_token, { secret: process.env.SECRET_KEY })
-      return { message: "VALID_TOKEN"};
+      let tokenVerificationResult = this.jwtService.verify(access_token, { secret: process.env.SECRET_KEY })
+      let isUserVerified = await this.prisma.user.findUnique({
+        where: {
+          email: tokenVerificationResult.email
+        }
+      })
+      if (isUserVerified) {
+        return {
+          user: isUserVerified
+        }
+      } else {
+        throw new UnauthorizedException("INVALID_TOKEN")
+      }
     } catch(error) {
       if (error.name == "TokenExpiredError") {
         throw new UnauthorizedException("EXPIRED_TOKEN")
