@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request, Patch, Param, ParseIntPipe } from '@nestjs/common';
 import { CompletedService } from './completed.service';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { AuthJWTGuard } from 'src/auth/auth.jwt.guard';
@@ -17,5 +17,15 @@ export class CompletedController {
   async todayTodos(@Request() req) {
     const userId = req.user.userId
     return await this.completedService.todayTodosGet(userId)
+  }
+
+  @ApiOperation({
+    summary: "TODO 완료 여부 변경 API",
+    description: "complete_todo_id 값을 id값으로 입력하면 해당 completed_todo 완료 여부가 toggle 됩니다."
+  })
+  @Patch(':id')
+  async completedToggle(@Param('id', ParseIntPipe) id: number, @Request() req) {
+    const userId = req.user.userId;
+    return await this.completedService.toggleTodoCompletion(id, userId);
   }
 }
