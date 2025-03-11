@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDate, IsNumber, IsString } from "class-validator";
+import { IsNumber, IsString } from "class-validator";
 
 export class CreateTodoBodyDto {
     @ApiProperty({
@@ -9,7 +9,8 @@ export class CreateTodoBodyDto {
     title: string;
 
     @ApiProperty({
-        description: "TODO 상세 설명"
+        description: "TODO 상세 설명",
+        example: ""
     })
     description: string | null;
     
@@ -23,15 +24,17 @@ export class CreateTodoBodyDto {
         description: "현재 식물 ID"
     })
     @IsNumber()
-    user_plants_id: number
+    user_plants_id: number;
     
     @ApiProperty({
-        description: "TODO 시작일"
+        description: "TODO 시작일",
+        format: "date"
     })
-    start_date: Date
+    start_date: Date;
     
     @ApiProperty({
-        description: "TODO 마감일"
+        description: "TODO 마감일",
+        format: "date"
     })
-    end_date: Date
+    end_date: Date;
 }
