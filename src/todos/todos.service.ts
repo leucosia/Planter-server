@@ -12,13 +12,12 @@ export class TodosService {
   ) {}
 
   async create(createTodoDto: CreateTodoBodyDto, userId: number) : Promise<CreateTodoResponseDTO> {
-    
     // 정상적인 user_plants_id인지 체크
     try {
       const user_plant = await this.prisma.user_plants.findUnique({
         where: {
           user_plant_id: createTodoDto.user_plants_id,
-          plants_is_done: false
+          user_id: userId
         }
       })
 
@@ -29,18 +28,33 @@ export class TodosService {
         }
       })
 
+      const start_datea = new Date(createTodoDto.start_date);
+      const end_datea = new Date(createTodoDto.end_date);
+
       if (user_plant && user_category) {
         const todo = await this.prisma.todos.create({
           data: {
             title: createTodoDto.title,
             description: createTodoDto.description,
-            start_date: createTodoDto.start_date,
-            end_date: createTodoDto.end_date,
+            start_date: start_datea,
+            end_date: end_datea,
             user_id: userId,
-            user_plant_id: createTodoDto.user_plants_id,
-            user_category_id: createTodoDto.user_category_id,
+            user_plant_id: user_plant.user_plant_id,
+            user_category_id: user_category.user_category_id,
           }
         })
+
+        let currentDate = start_datea
+        while (currentDate <= end_datea) {
+          await this.prisma.complete_todos.create ({
+            data: {
+              todo_id: todo.todo_id,
+              complete_at: currentDate
+            }
+          })
+
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
 
         return {
           todo_id: todo.todo_id,
@@ -56,6 +70,7 @@ export class TodosService {
         throw new UnauthorizedException("Invalid TODO Creation")
       }
     } catch(error) {
+      console.log(error)
       throw new UnauthorizedException("Invalid TODO Creation")
     }
   }

@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, UseGuards, Request, Param, ParseIntPipe, Delete } from '@nestjs/common';
 import { TodosService } from './todos.service';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiProperty, ApiResponse } from '@nestjs/swagger';
 import { CreateTodoBodyDto } from './dto/create.todo.body.dto';
 import { CreateTodoResponseDTO } from './dto/create.todo.response.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -21,7 +21,6 @@ export class TodosController {
   })
   @ApiBody({ type: CreateTodoBodyDto })
   @ApiResponse({ type: CreateTodoResponseDTO})
-  
   @Post()
   async create(@Body() createTodoDto: CreateTodoBodyDto, @Request() req) {
     const userId = req.user.userId
@@ -67,6 +66,7 @@ export class TodosController {
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) todo_id: number, @Request() req) {
     const userId = req.user.userId
+    console.log(req);
     return await this.todosService.remove(todo_id, userId)
   }
 }

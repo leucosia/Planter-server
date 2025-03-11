@@ -37,7 +37,7 @@ model todos {
   user_id          Int
   user_plant_id    Int
   user_category_id Int
-  complete_todos   complete_todos?
+  complete_todos   complete_todos[]
   user_category    user_categories @relation(fields: [user_category_id], references: [user_category_id])
   user             User            @relation(fields: [user_id], references: [user_id])
   user_plants      user_plants     @relation(fields: [user_plant_id], references: [user_plant_id])
@@ -47,7 +47,7 @@ model complete_todos {
   complete_todo_id Int      @id @default(autoincrement())
   is_done          Boolean  @default(false)
   complete_at      DateTime @updatedAt
-  todo_id          Int      @unique
+  todo_id          Int
   todos            todos    @relation(fields: [todo_id], references: [todo_id])
 }
 
