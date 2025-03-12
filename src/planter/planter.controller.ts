@@ -1,34 +1,31 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Request, UseGuards } from '@nestjs/common';
 import { PlanterService } from './planter.service';
-import { CreatePlanterDto } from './dto/create-planter.dto';
-import { UpdatePlanterDto } from './dto/update-planter.dto';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { AuthJWTGuard } from 'src/auth/auth.jwt.guard';
 
 @Controller('planter')
+@UseGuards(AuthJWTGuard)
+@ApiBearerAuth()
 export class PlanterController {
   constructor(private readonly planterService: PlanterService) {}
 
-  @Post()
-  create(@Body() createPlanterDto: CreatePlanterDto) {
-    return this.planterService.create(createPlanterDto);
-  }
-
+  @ApiOperation({
+    summary: "현재 유저 식물 정보 API (토큰)",
+    description: "현재 활성화 된 식물의 정보를 토큰값 유저 정보를 바탕으로 반환합니다."
+  })
   @Get()
-  findAll() {
-    return this.planterService.findAll();
+  async getUserPlantFromToken(@Request() req) {
+    const userId = req.user.userId;
+    return this.planterService.getUserPlantFromUserId(userId);
   }
 
+  @ApiOperation({
+    summary: "유저 식물 정보 API (식물 ID)",
+    description: "식물 ID값을 바탕으로 유저 식물 정보를 반환합니다."
+  })
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.planterService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePlanterDto: UpdatePlanterDto) {
-    return this.planterService.update(+id, updatePlanterDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.planterService.remove(+id);
+  async getUserPlantFromId(@Param('id', ParseIntPipe) id: number, @Request() req) {
+    const userId = req.user.userId;
+    return this.planterService.getUserPlantFromPlantId(id, userId);
   }
 }

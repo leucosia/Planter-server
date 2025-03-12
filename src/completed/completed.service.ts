@@ -61,19 +61,8 @@ export class CompletedService {
       // 식물 경험치 추가
       const exp = (completed_todo.is_done) ? -1 : 1;
 
-      this.prisma.user_plants.update({
-        where: {
-          user_plant_id: todo.user_plant_id,
-          user_id: user_id
-        },
-        data: {
-          exp: {
-            increment: exp
-          }
-        }
-      })
-
-      return await this.prisma.complete_todos.update({
+      // completed_todo 업데이트
+      await this.prisma.complete_todos.update({
         where: {
           complete_todo_id: complete_todo_id
         },
@@ -81,6 +70,75 @@ export class CompletedService {
           is_done: !completed_todo.is_done
         }
       })
+
+      // 유저 식물 정보 가져오기
+      const user_plant = await this.prisma.user_plants.findFirst({
+        where: {
+          user_id: user_id,
+          plants_is_done: false
+        }
+      })
+
+      // 식물 정보 가져오기
+      const plant = await this.prisma.plants.findUnique({
+        where: {
+          plant_id: user_plant?.plant_id
+        }
+      })
+
+      // 식물 경험치 다 채운 경우
+      if ((plant && user_plant) && (plant.max_exp <= (user_plant.exp + exp))) {
+        await this.prisma.user_plants.update({
+          where: {
+            user_plant_id: user_plant.user_plant_id
+          },
+          data: {
+            exp: {
+              increment: exp
+            },
+            plants_is_done: true
+          }
+        })
+
+        // 새 식물 생성 후 전달
+        const updatedUserPlant = await this.prisma.user_plants.create({
+          data: {
+            user_id: user_id,
+            plant_id: plant.next_plant_id
+          }
+        })
+
+        // 새 식물에 대한 데이터
+        const updatedPlant  = await this.prisma.plants.findUnique({
+          where: {
+            plant_id: updatedUserPlant.plant_id
+          }
+        })
+
+        return {
+          userPlant: updatedUserPlant,
+          plant: updatedPlant
+        }
+      }
+
+      // 식물 경험치 다 채우지 않은 경우
+      else {
+        const updatedPlant = await this.prisma.user_plants.update({
+          where: {
+            user_plant_id: user_plant?.user_plant_id
+          },
+          data: {
+            exp: {
+              increment: exp
+            }
+          }
+        })
+
+        return {
+          userPlant: updatedPlant,
+          plant: plant
+        }
+      }
     } else {
       throw new UnauthorizedException("INVALID_REQUEST");
     }
