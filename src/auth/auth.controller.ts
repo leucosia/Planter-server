@@ -58,6 +58,6 @@ export class AuthController {
   @ApiBody({ type: AuthAccessTokenBody })
   @ApiResponse({ type: AuthUserInfoResponse })
   async verifyToken(@Body('access_token') accessToken: string) {
-    return this.authService.getUserInfo(accessToken)
+    return this.authService.getUserInfoFromAccessToken(accessToken)
   }
 }

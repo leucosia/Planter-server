@@ -238,7 +238,7 @@ export class AuthService {
   }
 
   // 유저 정보 반환해주는 함수
-  async getUserInfo(accessToken: string) {
+  async getUserInfoFromAccessToken(accessToken: string) {
     try {
       let tokenVerificationResult = this.jwtService.verify(accessToken, { secret: process.env.SECRET_KEY })
       let isUserVerified = await this.prisma.user.findUnique({
