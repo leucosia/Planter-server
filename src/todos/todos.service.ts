@@ -76,20 +76,30 @@ export class TodosService {
   }
 
   async findAll(user_id: number) {
-    return this.prisma.todos.findMany({
-      where: {
-        user_id: user_id
-      }
-    })
+    try {
+      return this.prisma.todos.findMany({
+        where: {
+          user_id: user_id
+        }
+      });
+    } catch(error) {
+      console.log(error);
+      throw new UnauthorizedException('INVALID_REQUEST');
+    }
   }
 
   async findOne(todo_id: number, user_id: number) {
-    return this.prisma.todos.findUnique({
-      where: {
-        user_id: user_id,
-        todo_id: todo_id
-      }
-    })
+    try {
+      return this.prisma.todos.findUnique({
+        where: {
+          user_id: user_id,
+          todo_id: todo_id
+        }
+      });
+    } catch(error) {
+      console.log(error);
+      throw new UnauthorizedException('INVALID_REQUEST');
+    }
   }
 
   async update(todo_id: number, user_id: number, updateTodoDto: UpdateTodoBodyDto): Promise<UpdateTodoResponseDto> {
@@ -131,16 +141,22 @@ export class TodosService {
         throw new UnauthorizedException("Invalid TODO Update")
       }
     } catch(error) {
+      console.log(error);
       throw new UnauthorizedException("Invalid TODO Update")
     }
   }
 
   async remove(todo_id: number, user_id: number) {
-    return this.prisma.todos.delete({
-      where: {
-        todo_id: todo_id,
-        user_id: user_id
-      }
-    })
+    try {
+      return this.prisma.todos.delete({
+        where: {
+          todo_id: todo_id,
+          user_id: user_id
+        }
+      });
+    } catch(error) {
+      console.log(error);
+      throw new UnauthorizedException('INVALID_REQUEST');
+    }
   }
 }

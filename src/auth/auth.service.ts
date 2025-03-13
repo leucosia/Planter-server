@@ -53,19 +53,24 @@ export class AuthService {
   }
 
   public async refreshToken(refresh_token: string): Promise<AuthLoginResponse> {
-    const user = await this.prisma.user.findFirst({
-      where: { 
-        refreshToken: refresh_token 
-      },
-    })
+    try {
+      const user = await this.prisma.user.findFirst({
+        where: { 
+          refreshToken: refresh_token 
+        },
+      })
 
-    if (user && user.name) {
-      return this.login(
-        user.email,
-        user.name
-      )
-    } else {
-      throw new UnauthorizedException('Invalid Refresh Token');
+      if (user && user.name) {
+        return this.login(
+          user.email,
+          user.name
+        )
+      } else {
+        throw new UnauthorizedException('Invalid Refresh Token');
+      }
+    } catch(error) {
+      console.log(error);
+      throw new UnauthorizedException('INVALID_REQUEST');
     }
   }
 
@@ -86,54 +91,61 @@ export class AuthService {
 
       return true;
     } catch (error) {
+      console.log(error);
       throw new UnauthorizedException('Error validating refresh token');
     }
   }
 
   async login(email: string, name: string): Promise<AuthLoginResponse> {
-    let user = await this.prisma.user.findFirst({
-      where: { email: email },
-    });
+    try {
+      let user = await this.prisma.user.findFirst({
+        where: { email: email },
+      });
 
-    // 유저가 없으면 회원 가입 후 Token Return
-    if (!user) {
-      // 유저 생성
-      user = await this.prisma.user.create({
+      // 유저가 없으면 회원 가입 후 Token Return
+      if (!user) {
+        // 유저 생성
+        user = await this.prisma.user.create({
+          data: {
+            email: email,
+            name: name,
+          }
+        })
+
+        // 기본 식물 생성
+        await this.prisma.user_plants.create({
+          data: {
+            user_id: user.user_id,
+          },
+        })
+
+        // 기본 카테고리 생성
+        await this.prisma.user_categories.create({
+          data: {
+            user_id: user.user_id,
+            color: "#74c270"
+          }
+        })
+      }
+
+      const accessToken = await this.createAccessToken(user);
+      const refreshToken = await this.createRefreshToken(user);
+
+      await this.prisma.user.update({
+        where: { email: email },
         data: {
-          email: email,
-          name: name,
+          refreshToken: refreshToken
         }
       })
 
-      // 기본 식물 생성
-      await this.prisma.user_plants.create({
-        data: {
-          user_id: user.user_id,
-        },
-      })
-
-      // 기본 카테고리 생성
-      await this.prisma.user_categories.create({
-        data: {
-          user_id: user.user_id,
-          color: "#74c270"
-        }
-      })
-    }
-
-    const accessToken = await this.createAccessToken(user);
-    const refreshToken = await this.createRefreshToken(user);
-
-    await this.prisma.user.update({
-      where: { email: email },
-      data: {
+      return {
+        accessToken: accessToken,
         refreshToken: refreshToken
       }
-    })
-
-    return {
-      accessToken: accessToken,
-      refreshToken: refreshToken
+    }
+    catch(error) {
+      console.log(error);
+      throw new UnauthorizedException('INVALID_REQUEST');
     }
   }
 
@@ -147,6 +159,7 @@ export class AuthService {
         verifiedUser.name
       );
     } catch (error) {
+      console.log(error);
       throw new UnauthorizedException('Google token verification failed: ' + error);
     }
   }
@@ -163,6 +176,7 @@ export class AuthService {
         throw new UnauthorizedException('Google token verification failed');
       }
     } catch (error) {
+      console.log(error);
       throw new UnauthorizedException('Google token verification failed: ' + error);
     }
   }
@@ -180,6 +194,7 @@ export class AuthService {
         verifiedUser.name
       );
     } catch (error) {
+      console.log(error);
       throw new UnauthorizedException('Apple token verification failed: ' + error);
     }
   }
@@ -205,6 +220,7 @@ export class AuthService {
         name: verifiedToken.name,
       };
     } catch (error) {
+      console.log(error);
       throw new UnauthorizedException('Apple token verification failed: ' + error);
     }
   }
@@ -239,6 +255,7 @@ export class AuthService {
         throw new UnauthorizedException("INVALID_TOKEN")
       }
     } catch(error) {
+      console.log(error);
       if (error.name == "TokenExpiredError") {
         throw new UnauthorizedException("EXPIRED_TOKEN")
       }

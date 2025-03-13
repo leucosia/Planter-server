@@ -10,46 +10,61 @@ export class CategoryService {
   ) {}
 
   async create(createCategoryDto: CreateCategoryDto, user_id: number) {
-    // #이 붙었는지 검사
-    if (!createCategoryDto.color?.includes("#")) {
-      throw new UnauthorizedException("INVALID_REQUEST")
-    }
-
-    // 색상 중복 확인
-    const category = await this.prisma.user_categories.findFirst({
-      where: {
-        user_id: user_id,
-        color: createCategoryDto.color
+    try {
+      // #이 붙었는지 검사
+      if (!createCategoryDto.color?.includes("#")) {
+        throw new UnauthorizedException("INVALID_REQUEST")
       }
-    })
 
-    if (!category) {
-      return await this.prisma.user_categories.create({
-        data: {
+      // 색상 중복 확인
+      const category = await this.prisma.user_categories.findFirst({
+        where: {
           user_id: user_id,
           color: createCategoryDto.color
         }
       })
-    }
 
-    return '중복된 카테고리 색상';
+      if (!category) {
+        return await this.prisma.user_categories.create({
+          data: {
+            user_id: user_id,
+            color: createCategoryDto.color
+          }
+        })
+      }
+
+      return '중복된 카테고리 색상';
+    } catch (error) {
+      console.log(error);
+      throw new UnauthorizedException('INVALID_REQUEST');
+    }
   }
 
   async findAll(userId: number) {
-    return await this.prisma.user_categories.findMany({
-      where: {
-        user_id: userId
-      }
-    })
+    try {
+      return await this.prisma.user_categories.findMany({
+        where: {
+          user_id: userId
+        }
+      })
+    } catch(error) {
+      console.log(error);
+      throw new UnauthorizedException('INVALID_REQUEST');
+    }
   }
 
   async findOne(categoryId: number, userId: number) {
-    return await this.prisma.user_categories.findUnique({
-      where: {
-        user_category_id: categoryId,
-        user_id: userId
-      }
-    })
+    try {
+      return await this.prisma.user_categories.findUnique({
+        where: {
+          user_category_id: categoryId,
+          user_id: userId
+        }
+      });
+    } catch(error) {
+      console.log(error);
+      throw new UnauthorizedException('INVALID_REQUEST');
+    }
   }
 
   async updateCategory(categoryId: number, userId: number, updateCategoryDto: UpdateCategoryDto) {
@@ -84,6 +99,7 @@ export class CategoryService {
         throw new UnauthorizedException("INVALID_REQUEST")
       }
     } catch (error) {
+      console.log(error);
       throw new UnauthorizedException("INVALID_REQUEST")
     }
   }
