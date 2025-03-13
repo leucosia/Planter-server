@@ -78,7 +78,7 @@ export class CompletedService {
           });
 
           // 유저 식물 정보 가져오기
-          const user_plant = await this.prisma.user_plants.findFirst({
+          const userPlant = await this.prisma.user_plants.findFirst({
             where: {
               user_id: userId,
               plants_is_done: false
@@ -88,15 +88,15 @@ export class CompletedService {
           // 식물 정보 가져오기
           const plant = await this.prisma.plants.findUnique({
             where: {
-              plant_id: user_plant?.plant_id
+              plant_id: userPlant?.plant_id
             }
           });
 
           // 식물 경험치 다 채운 경우
-          if ((plant && user_plant) && (plant.max_exp <= (user_plant.exp + exp))) {
+          if ((plant && userPlant) && (plant.max_exp <= (userPlant.exp + exp))) {
             await this.prisma.user_plants.update({
               where: {
-                user_plant_id: user_plant.user_plant_id
+                user_plant_id: userPlant.user_plant_id
               },
               data: {
                 exp: {
@@ -131,7 +131,7 @@ export class CompletedService {
           else {
             const updatedPlant = await this.prisma.user_plants.update({
               where: {
-                user_plant_id: user_plant?.user_plant_id
+                user_plant_id: userPlant?.user_plant_id
               },
               data: {
                 exp: {
@@ -155,22 +155,23 @@ export class CompletedService {
   }
 
   // 특정 기간 동안 조회
-  async getTodoByDateRange(startDateString: Date, endDateString: Date, userId: number) {
+  async getTodoByDateRange(startDateString: string, endDateString: string, userId: number) {
     try {
-      if (startDateString && endDateString) {
-        const start_date = new Date(startDateString);
-        const end_date = new Date(endDateString);
+      const startDate = new Date(startDateString);
+      const endDate = new Date(endDateString);
+
+      if (startDateString && endDateString && (startDate < endDate)) {
         // 이하여서 제대로 조회하기 위함
-        end_date.setHours(23, 59, 59, 999);
+        endDate.setHours(23, 59, 59, 999);
 
         const todos = await this.prisma.todos.findMany({
           where: {
             user_id: userId,
             start_date: {
-              lte: start_date
+              lte: startDate
             },
             end_date: {
-              gte: end_date
+              gte: endDate
             }
           }
         });
@@ -182,8 +183,8 @@ export class CompletedService {
               in: todoIds
             },
             complete_at: {
-              gte: start_date,
-              lte: end_date
+              gte: startDate,
+              lte: endDate
             }
           }
         });

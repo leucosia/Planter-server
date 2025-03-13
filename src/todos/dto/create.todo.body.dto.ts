@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNumber, IsString } from "class-validator";
+import { IsDateString, IsNumber, IsString } from "class-validator";
 
 export class CreateTodoBodyDto {
     @ApiProperty({
@@ -30,11 +30,13 @@ export class CreateTodoBodyDto {
         description: "TODO 시작일",
         format: "date"
     })
-    startDate: Date;
+    @IsDateString()
+    startDate: string;
     
     @ApiProperty({
         description: "TODO 마감일",
         format: "date"
     })
-    endDate: Date;
+    @IsDateString()
+    endDate: string;
 }
