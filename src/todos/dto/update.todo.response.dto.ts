@@ -6,7 +6,7 @@ export class UpdateTodoResponseDto {
         description: "TODO ID"
     })
     @IsNumber()
-    todo_id: number;
+    todoId: number;
 
     @ApiProperty({
         description: "TODO 제목"
@@ -24,23 +24,23 @@ export class UpdateTodoResponseDto {
         description: "TODO 시작일"
     })
     @IsDate()
-    start_date: Date
+    startDate: Date
 
     @ApiProperty({
         description: "TODO 마감일"
     })
     @IsDate()
-    end_date: Date
+    endDate: Date
 
     @ApiProperty({
         description: "유저 식물 ID"
     })
     @IsNumber()
-    user_plants_id: number
+    userPlantsId: number
     
     @ApiProperty({
         description: "해당 카테고리 아이디"
     })
     @IsNumber()
-    user_category_id: number
+    userCategoryId: number
 }

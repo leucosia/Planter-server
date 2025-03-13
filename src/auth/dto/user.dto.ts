@@ -4,7 +4,7 @@ import { IsString, IsBoolean, MinLength, MaxLength, isString } from 'class-valid
 
 
 export class UserDto implements User {
-    user_id: number;
+    userId: number;
 
     email: string;
 

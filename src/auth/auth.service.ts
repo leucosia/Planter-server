@@ -8,7 +8,6 @@ import * as admin from 'firebase-admin';
 import * as jwksClient from 'jwks-rsa';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
-import { decode } from 'punycode';
 
 @Injectable()
 export class AuthService {
@@ -43,7 +42,7 @@ export class AuthService {
   private async createRefreshToken(payload: Payload): Promise<string> {
     const refreshToken = this.jwtService.sign({
       email: payload.email,
-      id: payload.user_id,
+      id: payload.userId,
       jti: this.generateJti()
     }, { 
       expiresIn: "7d",
@@ -74,10 +73,10 @@ export class AuthService {
     }
   }
 
-  private validateRefreshToken(refresh_token: string): boolean {
+  private validateRefreshToken(refreshToken: string): boolean {
     try {
       // 토큰 디코드해서 만료 시간 확인
-      const decoded = this.jwtService.decode(refresh_token) as { exp: number };
+      const decoded = this.jwtService.decode(refreshToken) as { exp: number };
 
       if (!decoded || !decoded.exp) {
         throw new UnauthorizedException('Invalid Refresh Token');
@@ -115,14 +114,14 @@ export class AuthService {
         // 기본 식물 생성
         await this.prisma.user_plants.create({
           data: {
-            user_id: user.user_id,
+            user_id: user.userId,
           },
         })
 
         // 기본 카테고리 생성
         await this.prisma.user_categories.create({
           data: {
-            user_id: user.user_id,
+            user_id: user.userId,
             color: "#74c270"
           }
         })
@@ -239,9 +238,9 @@ export class AuthService {
   }
 
   // 유저 정보 반환해주는 함수
-  async getUserInfo(access_token: string) {
+  async getUserInfo(accessToken: string) {
     try {
-      let tokenVerificationResult = this.jwtService.verify(access_token, { secret: process.env.SECRET_KEY })
+      let tokenVerificationResult = this.jwtService.verify(accessToken, { secret: process.env.SECRET_KEY })
       let isUserVerified = await this.prisma.user.findUnique({
         where: {
           email: tokenVerificationResult.email

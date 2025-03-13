@@ -18,23 +18,23 @@ export class CreateTodoBodyDto {
         description: "카테고리 Number"
     })
     @IsNumber()
-    user_category_id: number;
+    userCategoryId: number;
 
     @ApiProperty({
         description: "현재 식물 ID"
     })
     @IsNumber()
-    user_plants_id: number;
+    userPlantsId: number;
     
     @ApiProperty({
         description: "TODO 시작일",
         format: "date"
     })
-    start_date: Date;
+    startDate: Date;
     
     @ApiProperty({
         description: "TODO 마감일",
         format: "date"
     })
-    end_date: Date;
+    endDate: Date;
 }

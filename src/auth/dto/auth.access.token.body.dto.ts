@@ -6,5 +6,5 @@ export class AuthAccessTokenBody {
         description: "Access Token 검증을 위한 API"
     })
     @IsString()
-    access_token: string
+    accessToken: string
 }

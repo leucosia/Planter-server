@@ -42,8 +42,8 @@ export class AuthController {
   @Post("refresh")
   @ApiBody({ type: AuthRefreshTokenBody })
   @ApiResponse({ type: AuthLoginResponse })
-  async login(@Body('refresh_token') refresh_token: string) {
-    return this.authService.refreshToken(refresh_token);
+  async login(@Body('refresh_token') refreshToken: string) {
+    return this.authService.refreshToken(refreshToken);
   }
 
   @ApiOperation({
@@ -57,7 +57,7 @@ export class AuthController {
   @Post("info")
   @ApiBody({ type: AuthAccessTokenBody })
   @ApiResponse({ type: AuthUserInfoResponse })
-  async verifyToken(@Body('access_token') access_token: string) {
-    return this.authService.getUserInfo(access_token)
+  async verifyToken(@Body('access_token') accessToken: string) {
+    return this.authService.getUserInfo(accessToken)
   }
 }

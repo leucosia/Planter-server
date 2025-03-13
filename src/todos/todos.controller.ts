@@ -42,9 +42,9 @@ export class TodosController {
     description: "TODO ID 입력 시 TODO를 조회"
   })
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) todo_id: number, @Request() req) {
+  async findOne(@Param('id', ParseIntPipe) todoId: number, @Request() req) {
     const userId = req.user.userId
-    return await this.todosService.findOne(todo_id, userId)
+    return await this.todosService.findOne(todoId, userId)
   }
 
   @ApiOperation({
@@ -54,9 +54,9 @@ export class TodosController {
   @ApiBody({ type: UpdateTodoBodyDto })
   @ApiResponse({ type: UpdateTodoResponseDto })
   @Post(':id')
-  async update(@Param('id', ParseIntPipe) todo_id: number, @Request() req, @Body() updateTodoDto: UpdateTodoBodyDto) {
+  async update(@Param('id', ParseIntPipe) todoId: number, @Request() req, @Body() updateTodoDto: UpdateTodoBodyDto) {
     const userId = req.user.userId
-    return await this.todosService.update(todo_id, userId, updateTodoDto)
+    return await this.todosService.update(todoId, userId, updateTodoDto)
   }
 
   @ApiOperation({
@@ -64,9 +64,9 @@ export class TodosController {
     description: "TODO 삭제 API"
   })
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) todo_id: number, @Request() req) {
+  async remove(@Param('id', ParseIntPipe) todoId: number, @Request() req) {
     const userId = req.user.userId
     console.log(req);
-    return await this.todosService.remove(todo_id, userId)
+    return await this.todosService.remove(todoId, userId)
   }
 }

@@ -7,7 +7,7 @@ export class CompletedService {
     private prisma: PrismaService
   ){}
 
-  async todayTodosGet(user_id: number) {
+  async todayTodosGet(userId: number) {
     try {
       // 금일 설정
       const startOfToday = new Date();
@@ -19,7 +19,7 @@ export class CompletedService {
       // 아직 마감안된 TODO 조회
       let todos = this.prisma.todos.findMany({
         where: {
-          user_id: user_id,
+          user_id: userId,
           start_date: {
             lte: startOfToday
           },
@@ -48,18 +48,18 @@ export class CompletedService {
   }
 
   // 완료 여부 변경
-  async toggleTodoCompletion(complete_todo_id: number, user_id: number) {
+  async toggleTodoCompletion(completeTodoId: number, userId: number) {
       try {
         const completed_todo = await this.prisma.complete_todos.findUnique({
           where: {
-            complete_todo_id: complete_todo_id
+            complete_todo_id: completeTodoId
           },
         });
 
         const todo = await this.prisma.todos.findUnique({
           where: {
             todo_id: completed_todo?.todo_id,
-            user_id: user_id
+            user_id: userId
           }
         });
 
@@ -70,7 +70,7 @@ export class CompletedService {
           // completed_todo 업데이트
           await this.prisma.complete_todos.update({
             where: {
-              complete_todo_id: complete_todo_id
+              complete_todo_id: completeTodoId
             },
             data: {
               is_done: !completed_todo.is_done
@@ -80,7 +80,7 @@ export class CompletedService {
           // 유저 식물 정보 가져오기
           const user_plant = await this.prisma.user_plants.findFirst({
             where: {
-              user_id: user_id,
+              user_id: userId,
               plants_is_done: false
             }
           });
@@ -109,7 +109,7 @@ export class CompletedService {
             // 새 식물 생성 후 전달
             const updatedUserPlant = await this.prisma.user_plants.create({
               data: {
-                user_id: user_id,
+                user_id: userId,
                 plant_id: plant.next_plant_id
               }
             });
@@ -155,11 +155,11 @@ export class CompletedService {
   }
 
   // 특정 기간 동안 조회
-  async getTodoByDateRange(start_date_string: Date, end_date_string: Date, userId: number) {
+  async getTodoByDateRange(startDateString: Date, endDateString: Date, userId: number) {
     try {
-      if (start_date_string && end_date_string) {
-        const start_date = new Date(start_date_string);
-        const end_date = new Date(end_date_string);
+      if (startDateString && endDateString) {
+        const start_date = new Date(startDateString);
+        const end_date = new Date(endDateString);
         // 이하여서 제대로 조회하기 위함
         end_date.setHours(23, 59, 59, 999);
 

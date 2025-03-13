@@ -9,7 +9,7 @@ export class CategoryService {
     private prisma: PrismaService
   ) {}
 
-  async create(createCategoryDto: CreateCategoryDto, user_id: number) {
+  async create(createCategoryDto: CreateCategoryDto, userId: number) {
     try {
       // #이 붙었는지 검사
       if (!createCategoryDto.color?.includes("#")) {
@@ -19,7 +19,7 @@ export class CategoryService {
       // 색상 중복 확인
       const category = await this.prisma.user_categories.findFirst({
         where: {
-          user_id: user_id,
+          user_id: userId,
           color: createCategoryDto.color
         }
       })
@@ -27,7 +27,7 @@ export class CategoryService {
       if (!category) {
         return await this.prisma.user_categories.create({
           data: {
-            user_id: user_id,
+            user_id: userId,
             color: createCategoryDto.color
           }
         })
