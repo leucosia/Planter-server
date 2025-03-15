@@ -120,11 +120,41 @@ export class AuthService {
         })
 
         // 기본 카테고리 생성
-        await this.prisma.user_categories.create({
-          data: {
-            user_id: user.user_id,
-            color: "#74c270"
-          }
+        await this.prisma.user_categories.createMany({
+          data: [
+            {
+              user_id: user.user_id,
+              color: "#FFA49B"
+            },
+            {
+              user_id: user.user_id,
+              color: "#FFB47D"
+            },
+            {
+              user_id: user.user_id,
+              color: "#FFF17D"
+            },
+            {
+              user_id: user.user_id,
+              color: "#B9EE85"
+            },
+            {
+              user_id: user.user_id,
+              color: "#6EEBB4"
+            },
+            {
+              user_id: user.user_id,
+              color: "#A5E2FF"
+            },
+            {
+              user_id: user.user_id,
+              color: "#A5B2FF"
+            },
+            {
+              user_id: user.user_id,
+              color: "#CBA5FF"
+            }
+          ]
         })
       }
 
