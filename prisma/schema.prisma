@@ -29,18 +29,18 @@ model user_categories {
 }
 
 model todos {
-  todo_id          Int             @id @default(autoincrement())
+  todo_id          Int              @id @default(autoincrement())
   title            String
   description      String?
-  start_date       DateTime        @default(now())
-  end_date         DateTime        @updatedAt
+  start_date       DateTime         @default(now())
+  end_date         DateTime         @updatedAt
   user_id          Int
   user_plant_id    Int
-  user_category_id Int
+  user_category_id Int?
   complete_todos   complete_todos[]
-  user_category    user_categories @relation(fields: [user_category_id], references: [user_category_id])
-  user             User            @relation(fields: [user_id], references: [user_id])
-  user_plants      user_plants     @relation(fields: [user_plant_id], references: [user_plant_id])
+  user_category    user_categories? @relation(fields: [user_category_id], references: [user_category_id], onDelete: Restrict)
+  user             User             @relation(fields: [user_id], references: [user_id])
+  user_plants      user_plants      @relation(fields: [user_plant_id], references: [user_plant_id])
 }
 
 model complete_todos {
