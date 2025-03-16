@@ -32,8 +32,8 @@ model todos {
   todo_id          Int              @id @default(autoincrement())
   title            String
   description      String?
-  start_date       DateTime         @default(now())
-  end_date         DateTime         @updatedAt
+  start_date       DateTime
+  end_date         DateTime
   user_id          Int
   user_plant_id    Int
   user_category_id Int?
@@ -46,7 +46,7 @@ model todos {
 model complete_todos {
   complete_todo_id Int      @id @default(autoincrement())
   is_done          Boolean  @default(false)
-  complete_at      DateTime @updatedAt
+  complete_at      DateTime
   todo_id          Int
   todos            todos    @relation(fields: [todo_id], references: [todo_id])
 }
