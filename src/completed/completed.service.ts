@@ -24,7 +24,7 @@ export class CompletedService {
             lte: startOfToday
           },
           end_date: {
-            gte: endOfToday
+            gt: endOfToday
           }
         },
       });
