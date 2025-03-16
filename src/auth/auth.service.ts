@@ -276,10 +276,26 @@ export class AuthService {
         where: {
           email: tokenVerificationResult.email
         }
-      })
+      });
+
       if (isUserVerified) {
+        const userPlant = this.prisma.user_plants.findFirst({
+          where: {
+            user_id: isUserVerified.user_id,
+            plants_is_done: false
+          }
+        });
+
+        const plant = this.prisma.plants.findUnique({
+          where: {
+            plant_id: userPlant[0].plant_id
+          }
+        });
+        
         return {
-          user: isUserVerified
+          user: isUserVerified,
+          userPlant: userPlant,
+          plant: plant
         }
       } else {
         throw new UnauthorizedException("INVALID_TOKEN")
