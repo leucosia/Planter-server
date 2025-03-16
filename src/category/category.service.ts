@@ -79,7 +79,8 @@ export class CategoryService {
           user_category_id: categoryId,
           user_id: userId
         }
-      })
+      });
+
       if (category) {
         // 기본 카테고리는 변경 안됨
         if (category.color == "#74c270") {
@@ -101,6 +102,47 @@ export class CategoryService {
     } catch (error) {
       console.log(error);
       throw new UnauthorizedException("INVALID_REQUEST")
+    }
+  }
+
+  async deleteCategory(categoryId: number, userId: number) {
+    try {
+      const categoryCount = await this.prisma.user_categories.findMany({
+        where: {
+          user_id: userId
+        }
+      })
+
+      const todos = await this.prisma.todos.findMany({
+        where: {
+          user_id: userId,
+          user_category_id: categoryId
+        }
+      });
+
+      const todoIds = (await todos).map(todo => todo.todo_id);
+
+      this.prisma.todos.updateMany({
+        where: {
+          user_id: userId,
+          user_category_id: {
+            in: todoIds
+          }
+        },
+        data: {
+          user_category_id: null
+        }
+      });
+
+      this.prisma.user_categories.delete({
+        where: {
+          user_id: userId,
+          user_category_id: categoryId
+        },
+      });
+    } catch(error) {
+      console.log(error);
+      throw new UnauthorizedException('INVALID_REQUEST');
     }
   }
 }

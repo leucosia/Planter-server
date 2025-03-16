@@ -24,23 +24,23 @@ export class UpdateTodoResponseDto {
         description: "TODO 시작일"
     })
     @IsDate()
-    start_date: Date
+    start_date: Date;
 
     @ApiProperty({
         description: "TODO 마감일"
     })
     @IsDate()
-    end_date: Date
+    end_date: Date;
 
     @ApiProperty({
         description: "유저 식물 ID"
     })
     @IsNumber()
-    user_plants_id: number
+    user_plants_id: number;
     
     @ApiProperty({
         description: "해당 카테고리 아이디"
     })
     @IsNumber()
-    user_category_id: number | null
+    user_category_id: number | null;
 }

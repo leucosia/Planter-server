@@ -18,7 +18,7 @@ export class CreateTodoBodyDto {
         description: "카테고리 Number"
     })
     @IsNumber()
-    user_category_id: number;
+    user_category_id: number | null;
 
     @ApiProperty({
         description: "현재 식물 ID"
