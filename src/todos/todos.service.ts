@@ -19,14 +19,14 @@ export class TodosService {
           user_plant_id: createTodoDto.user_plants_id,
           user_id: userId
         }
-      })
+      });
 
       // 정상적인 user_category_id인지 체크
       const user_category = await this.prisma.user_categories.findUnique({
         where: {
           user_category_id: createTodoDto.user_category_id
         }
-      })
+      });
 
       const start_datea = new Date(createTodoDto.start_date);
       const end_datea = new Date(createTodoDto.end_date);
