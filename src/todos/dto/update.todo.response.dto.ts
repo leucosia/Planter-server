@@ -42,5 +42,5 @@ export class UpdateTodoResponseDto {
         description: "해당 카테고리 아이디"
     })
     @IsNumber()
-    user_category_id: number
+    user_category_id: number | null
 }
