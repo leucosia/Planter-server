@@ -269,31 +269,29 @@ export class AuthService {
   }
 
   // 유저 정보 반환해주는 함수
-  async getUserInfo(access_token: string) {
+  async getUserInfo(userId: number) {
     try {
-      let tokenVerificationResult = this.jwtService.verify(access_token, { secret: process.env.SECRET_KEY })
-      let isUserVerified = await this.prisma.user.findUnique({
+      let isVerifiedUser = await this.prisma.user.findUnique({
         where: {
-          email: tokenVerificationResult.email
+          user_id: userId
         }
-      });
-
-      if (isUserVerified) {
-        const userPlant = this.prisma.user_plants.findFirst({
+      })
+      if (isVerifiedUser) {
+        const userPlant = await this.prisma.user_plants.findFirst({
           where: {
-            user_id: isUserVerified.user_id,
+            user_id: isVerifiedUser.user_id,
             plants_is_done: false
           }
         });
 
-        const plant = this.prisma.plants.findUnique({
+        const plant = await this.prisma.plants.findUnique({
           where: {
-            plant_id: userPlant[0].plant_id
+            plant_id: userPlant?.plant_id
           }
         });
-        
+
         return {
-          user: isUserVerified,
+          user: isVerifiedUser,
           userPlant: userPlant,
           plant: plant
         }

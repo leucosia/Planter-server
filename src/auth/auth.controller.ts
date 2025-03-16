@@ -1,12 +1,13 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthLoginResponse } from './dto/auth.login.response.dto';
 import { AuthGoogleLoginBody } from './dto/auth.google.login.body.dto';
 import { AuthRefreshTokenBody } from './dto/auth.refresh.token.body.dto';
 import { AuthAppleLoginBody } from './dto/auth.apple.login.body.dto';
 import { AuthAccessTokenBody } from './dto/auth.access.token.body.dto';
 import { AuthUserInfoResponse } from './dto/auth.get.info.response.dto';
+import { AuthJWTGuard } from './auth.jwt.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -54,10 +55,12 @@ export class AuthController {
       url: "https://www.notion.so/API-18e08f63f8038029b6beeaeeb19f67a7?pvs=4"
     }
   })
-  @Post("info")
-  @ApiBody({ type: AuthAccessTokenBody })
+  @ApiBearerAuth()
+  @UseGuards(AuthJWTGuard)
+  @Get("info")
   @ApiResponse({ type: AuthUserInfoResponse })
-  async verifyToken(@Body('access_token') access_token: string) {
-    return this.authService.getUserInfo(access_token)
+  async verifyToken(@Request() req) {
+    const userId = req.user.userId;
+    return this.authService.getUserInfo(userId)
   }
 }
