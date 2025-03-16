@@ -24,7 +24,7 @@ export class CompletedService {
             lte: startOfToday
           },
           end_date: {
-            gt: endOfToday
+            gte: endOfToday
           }
         },
       });
@@ -37,7 +37,7 @@ export class CompletedService {
           },
           complete_at: {
             gte: startOfToday,
-            lte: endOfToday
+            lt: endOfToday
           },
         }
       });
