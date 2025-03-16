@@ -155,22 +155,20 @@ export class CompletedService {
   }
 
   // 특정 기간 동안 조회
-  async getTodoByDateRange(start_date_string: Date, end_date_string: Date, userId: number) {
+  async getTodoByDateRange(start_date_string: string, end_date_string: string, userId: number) {
     try {
       if (start_date_string && end_date_string) {
         const start_date = new Date(start_date_string);
         const end_date = new Date(end_date_string);
-        // 이하여서 제대로 조회하기 위함
-        end_date.setHours(23, 59, 59, 999);
 
         const todos = await this.prisma.todos.findMany({
           where: {
             user_id: userId,
             start_date: {
-              lte: start_date
+              gte: start_date
             },
             end_date: {
-              gte: end_date
+              lte: end_date
             }
           }
         });
