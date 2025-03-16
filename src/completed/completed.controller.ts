@@ -34,7 +34,7 @@ export class CompletedController {
     description: "시작일~마감일 기간 동안 completed_todo를 조회하는 API"
   })
   @Get('/range')
-  async todosByDateRange(@Query('startDate') startDate: Date, @Query('endDate') endDate: Date, @Request() req) {
+  async todosByDateRange(@Query('startDate') startDate: string, @Query('endDate') endDate: string, @Request() req) {
     const userId = req.user.userId;
     return await this.completedService.getTodoByDateRange(startDate, endDate, userId);
   }
