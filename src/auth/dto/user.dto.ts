@@ -17,4 +17,6 @@ export class UserDto implements User {
     updateAt: Date;
     
     refreshToken: string | null;
+
+    platform: string;
 }
