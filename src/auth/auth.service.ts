@@ -63,7 +63,8 @@ export class AuthService {
       if (user && user.name) {
         return this.login(
           user.email,
-          user.name
+          user.name,
+          user.platform
         )
       } else {
         throw new UnauthorizedException('Invalid Refresh Token');
@@ -96,7 +97,7 @@ export class AuthService {
     }
   }
 
-  async login(email: string, name: string): Promise<AuthLoginResponse> {
+  async login(email: string, name: string, platform: string): Promise<AuthLoginResponse> {
     try {
       let user = await this.prisma.user.findFirst({
         where: { email: email },
@@ -109,6 +110,7 @@ export class AuthService {
           data: {
             email: email,
             name: name,
+            platform: platform
           }
         })
 
@@ -186,7 +188,8 @@ export class AuthService {
       // Error 나면 어떻하지?
       return this.login(
         verifiedUser.email,
-        verifiedUser.name
+        verifiedUser.name,
+        "Google"
       );
     } catch (error) {
       console.log(error);
@@ -221,7 +224,8 @@ export class AuthService {
 
       return this.login(
         verifiedUser.email,
-        verifiedUser.name
+        verifiedUser.name,
+        "Apple"
       );
     } catch (error) {
       console.log(error);

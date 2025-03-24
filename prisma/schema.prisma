@@ -15,6 +15,7 @@ model User {
   updateAt        DateTime          @updatedAt
   refreshToken    String?
   user_id         Int               @id @default(autoincrement())
+  platform        String
   todos           todos[]
   user_categories user_categories[]
   user_plants     user_plants[]
