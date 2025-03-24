@@ -43,7 +43,7 @@ export class AuthController {
   @Post("refresh")
   @ApiBody({ type: AuthRefreshTokenBody })
   @ApiResponse({ type: AuthLoginResponse })
-  async login(@Body('refresh_token') refresh_token: string) {
+  async login(@Body('refreshToken') refresh_token: string) {
     return this.authService.refreshToken(refresh_token);
   }
 
