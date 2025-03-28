@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Request, Delete } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthLoginResponse } from './dto/auth.login.response.dto';
@@ -62,5 +62,17 @@ export class AuthController {
   async verifyToken(@Request() req) {
     const userId = req.user.userId;
     return this.authService.getUserInfo(userId)
+  }
+
+  @ApiOperation({
+    summary: "Apple 회원 탈퇴 API",
+    description: "회원 탈퇴 API입니다."
+  })
+  @ApiBearerAuth()
+  @UseGuards(AuthJWTGuard)
+  @Delete()
+  async withdraw(@Request() req) {
+    const userId = req.user.userId;
+    return this.authService.withdraw(userId)
   }
 }
