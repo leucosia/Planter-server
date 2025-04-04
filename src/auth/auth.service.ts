@@ -63,7 +63,8 @@ export class AuthService {
       if (user && user.name) {
         return this.login(
           user.email,
-          user.name
+          user.name,
+          user.platform
         )
       } else {
         throw new UnauthorizedException('Invalid Refresh Token');
@@ -96,7 +97,7 @@ export class AuthService {
     }
   }
 
-  async login(email: string, name: string): Promise<AuthLoginResponse> {
+  async login(email: string, name: string, platform: string): Promise<AuthLoginResponse> {
     try {
       let user = await this.prisma.user.findFirst({
         where: { email: email },
@@ -109,6 +110,7 @@ export class AuthService {
           data: {
             email: email,
             name: name,
+            platform: platform
           }
         })
 
@@ -186,7 +188,8 @@ export class AuthService {
       // Error 나면 어떻하지?
       return this.login(
         verifiedUser.email,
-        verifiedUser.name
+        verifiedUser.name,
+        "Google"
       );
     } catch (error) {
       console.log(error);
@@ -221,7 +224,8 @@ export class AuthService {
 
       return this.login(
         verifiedUser.email,
-        verifiedUser.name
+        verifiedUser.name,
+        "Apple"
       );
     } catch (error) {
       console.log(error);
@@ -304,6 +308,73 @@ export class AuthService {
         throw new UnauthorizedException("EXPIRED_TOKEN")
       }
       throw new UnauthorizedException("INVALID_TOKEN")
+    }
+  }
+
+  // 회원 탈퇴
+  async withdraw(userId: number) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          user_id: userId
+        }
+      })
+
+      if (!user) {
+        throw new UnauthorizedException("USER NOT FIND")
+      }
+
+      // Firebase 회원 탈퇴
+      const firebaseUser = await admin.auth().getUserByEmail(user.email);
+      await admin.auth().deleteUser(firebaseUser.uid);
+      
+      // 유저 Plants 삭제
+      await this.prisma.user_plants.deleteMany({
+        where: {
+          user_id: userId
+        }
+      })
+
+      // 유저 TODO 삭제
+      const todos = await this.prisma.todos.findMany({
+        where: {
+          user_id: userId
+        }
+      });
+      const todoIds = (await todos).map(todo => todo.todo_id);
+
+      await this.prisma.complete_todos.deleteMany({
+        where: {
+          todo_id: {
+            in: todoIds
+          }
+        }
+      })
+
+      await this.prisma.todos.deleteMany({
+        where: {
+          todo_id: {
+            in: todoIds
+          }
+        }
+      })
+
+      // 유저 카테고리 삭제
+      await this.prisma.user_categories.deleteMany({
+        where: {
+          user_id: userId
+        }
+      });
+
+      // 유저 삭제
+      await this.prisma.user.delete({
+        where: {
+          user_id: userId
+        }
+      })
+    } catch(error) {
+      console.log(error);
+      throw new UnauthorizedException("DB DELETE FAIL")
     }
   }
 }
