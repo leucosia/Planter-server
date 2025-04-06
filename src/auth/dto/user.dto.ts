@@ -18,5 +18,7 @@ export class UserDto implements User {
     
     refreshToken: string | null;
 
+    user_plant_id: number | null;
+
     platform: string;
 }

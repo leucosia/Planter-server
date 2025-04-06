@@ -16,9 +16,11 @@ model User {
   refreshToken    String?
   user_id         Int               @id @default(autoincrement())
   platform        String
+  user_plant_id   Int?              @unique
+  user_plant      user_plants?      @relation("CurrentPlant", fields: [user_plant_id], references: [user_plant_id])
   todos           todos[]
   user_categories user_categories[]
-  user_plants     user_plants[]
+  user_plants     user_plants[]     @relation("UserAllPlants")
 }
 
 model user_categories {
@@ -63,13 +65,14 @@ model plants {
 model user_plants {
   user_plant_id  Int      @id @default(autoincrement())
   user_id        Int
-  plant_id       Int      @default(0)
+  plant_id       Int      @default(1)
   exp            Int      @default(0)
   name           String?
   plants_is_done Boolean  @default(false)
   start_date     DateTime @default(now())
   end_date       DateTime @updatedAt
+  current_user   User?    @relation("CurrentPlant")
   todos          todos[]
   plant          plants   @relation(fields: [plant_id], references: [plant_id])
-  user           User     @relation(fields: [user_id], references: [user_id])
+  user           User     @relation("UserAllPlants", fields: [user_id], references: [user_id])
 }

@@ -10,8 +10,8 @@ export class PlanterController {
   constructor(private readonly planterService: PlanterService) {}
 
   @ApiOperation({
-    summary: "현재 유저 식물 정보 API (토큰)",
-    description: "현재 활성화 된 식물의 정보를 토큰값 유저 정보를 바탕으로 반환합니다."
+    summary: "유저 식물들 정보 API",
+    description: "유저가 키웠던 식물 정보들을 반환합니다"
   })
   @Get()
   async getUserPlantFromToken(@Request() req) {

@@ -114,6 +114,16 @@ export class CompletedService {
               }
             });
 
+            // 새 식물 유저 테이블에도 업로드
+            await this.prisma.user.update({
+              where: {
+                user_id: user_id
+              },
+              data: {
+                user_plant_id: updatedUserPlant.user_plant_id
+              }
+            })
+
             // 새 식물에 대한 데이터
             const updatedPlant  = await this.prisma.plants.findUnique({
               where: {

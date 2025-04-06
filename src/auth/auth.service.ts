@@ -110,15 +110,25 @@ export class AuthService {
           data: {
             email: email,
             name: name,
-            platform: platform
+            platform: platform,
           }
         })
 
         // 기본 식물 생성
-        await this.prisma.user_plants.create({
+        let userPlant = await this.prisma.user_plants.create({
           data: {
             user_id: user.user_id,
           },
+        })
+
+        // 유저에게 할당
+        await this.prisma.user.update({
+          where: {
+            user_id: user.user_id
+          },
+          data: {
+            user_plant_id: userPlant.user_plant_id
+          }
         })
 
         // 기본 카테고리 생성

@@ -9,10 +9,9 @@ export class PlanterService {
 
   async getUserPlantFromUserId(userId: number) {
     try {
-      return await this.prisma.user_plants.findFirst({
+      return await this.prisma.user_plants.findMany({
         where: {
-          user_id: userId,
-          plants_is_done: false
+          user_id: userId
         }
       });
     } catch(error) {
