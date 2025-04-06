@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create.category.dto';
 import { UpdateCategoryDto } from './dto/update.category.dto';
 import { PrismaService } from 'src/prisma.client';
@@ -82,6 +82,18 @@ export class CategoryService {
       });
 
       if (category) {
+        // 중복된 색상이 있으면 안됨
+        let duplicatedColor = await this.prisma.user_categories.findFirst({
+          where: {
+            user_id: userId,
+            color: updateCategoryDto.color,
+          }
+        })
+
+        if (duplicatedColor) {
+          throw new BadRequestException("Duplication Color")
+        }
+
         // 기본 카테고리는 변경 안됨
         if (category.color == "#74c270") {
           throw new UnauthorizedException("UNMODIFIABLE_CATEGORY")
