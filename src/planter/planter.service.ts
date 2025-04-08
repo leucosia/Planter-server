@@ -12,6 +12,9 @@ export class PlanterService {
       return await this.prisma.user_plants.findMany({
         where: {
           user_id: userId
+        },
+        include: {
+          plant: true
         }
       });
     } catch(error) {
