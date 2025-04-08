@@ -24,7 +24,7 @@ export class CompletedService {
             lte: startOfToday
           },
           end_date: {
-            gte: endOfToday
+            gt: endOfToday
           }
         },
       });
@@ -175,10 +175,10 @@ export class CompletedService {
           where: {
             user_id: userId,
             start_date: {
-              gte: start_date
+              lte: start_date
             },
             end_date: {
-              lte: end_date
+              gt: end_date
             }
           }
         });
@@ -191,7 +191,7 @@ export class CompletedService {
             },
             complete_at: {
               gte: start_date,
-              lte: end_date
+              lt: end_date
             }
           }
         });
