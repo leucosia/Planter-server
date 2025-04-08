@@ -119,34 +119,37 @@ export class CategoryService {
 
   async deleteCategory(categoryId: number, userId: number) {
     try {
-      const categoryCount = await this.prisma.user_categories.findMany({
+      const category = await this.prisma.user_categories.findUnique({
+        where: {
+          user_category_id: categoryId
+        }
+      })
+
+      if (!category) {
+        throw new BadRequestException("Category does not exist")
+      }
+
+      const categoryCount = await this.prisma.user_categories.count({
         where: {
           user_id: userId
         }
       })
 
-      const todos = await this.prisma.todos.findMany({
+      if (categoryCount < 5) {
+        throw new BadRequestException("At least one category must exist.")
+      }
+
+      await this.prisma.todos.updateMany({
         where: {
           user_id: userId,
           user_category_id: categoryId
-        }
-      });
-
-      const todoIds = (await todos).map(todo => todo.todo_id);
-
-      this.prisma.todos.updateMany({
-        where: {
-          user_id: userId,
-          user_category_id: {
-            in: todoIds
-          }
         },
         data: {
           user_category_id: null
         }
-      });
+      })
 
-      this.prisma.user_categories.delete({
+      await this.prisma.user_categories.delete({
         where: {
           user_id: userId,
           user_category_id: categoryId
