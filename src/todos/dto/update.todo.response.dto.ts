@@ -36,7 +36,7 @@ export class UpdateTodoResponseDto {
         description: "유저 식물 ID"
     })
     @IsNumber()
-    user_plants_id: number;
+    user_plant_id: number;
     
     @ApiProperty({
         description: "해당 카테고리 아이디"

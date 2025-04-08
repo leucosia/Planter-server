@@ -24,7 +24,7 @@ export class CreateTodoBodyDto {
         description: "현재 식물 ID"
     })
     @IsNumber()
-    user_plants_id: number;
+    user_plant_id: number;
     
     @ApiProperty({
         description: "TODO 시작일",

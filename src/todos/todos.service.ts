@@ -12,11 +12,11 @@ export class TodosService {
   ) {}
 
   async create(createTodoDto: CreateTodoBodyDto, userId: number) : Promise<CreateTodoResponseDTO> {
-    // 정상적인 user_plants_id인지 체크
+    // 정상적인 user_plant_id인지 체크
     try {
       const user_plant = await this.prisma.user_plants.findUnique({
         where: {
-          user_plant_id: createTodoDto.user_plants_id,
+          user_plant_id: createTodoDto.user_plant_id,
           user_id: userId
         }
       });
@@ -64,7 +64,7 @@ export class TodosService {
           start_date: todo.start_date,
           end_date: todo.end_date,
           is_done: false,
-          user_plants_id: todo.user_plant_id,
+          user_plant_id: todo.user_plant_id,
           user_category_id: todo.user_category_id
         }; 
       } else {
@@ -198,7 +198,7 @@ export class TodosService {
           start_date: new_todo.start_date,
           end_date: new_todo.end_date,
           user_category_id: new_todo.user_category_id,
-          user_plants_id: new_todo.user_plant_id
+          user_plant_id: new_todo.user_plant_id
         }
       } else {
         throw new UnauthorizedException("Invalid TODO Update")
