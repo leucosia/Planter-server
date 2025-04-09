@@ -33,7 +33,7 @@ export class CategoryService {
         })
       }
 
-      return '중복된 카테고리 색상';
+      return 'Duplication Category Color';
     } catch (error) {
       console.log(error);
       throw new UnauthorizedException('INVALID_REQUEST');
@@ -42,11 +42,19 @@ export class CategoryService {
 
   async findAll(userId: number) {
     try {
-      return await this.prisma.user_categories.findMany({
+      const categories = await this.prisma.user_categories.findMany({
         where: {
           user_id: userId
         }
       })
+
+      const extraCategory = {
+        user_category_id: null,
+        user_id: userId,
+        color: null
+      }
+
+      return [...categories, extraCategory]
     } catch(error) {
       console.log(error);
       throw new UnauthorizedException('INVALID_REQUEST');
