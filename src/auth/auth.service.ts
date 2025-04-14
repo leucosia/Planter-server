@@ -283,41 +283,38 @@ export class AuthService {
   }
 
   // 유저 정보 반환해주는 함수
-  async getUserInfo(userId: number) {
+  async getUserInfo(userId: number): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     try {
       let isVerifiedUser = await this.prisma.user.findUnique({
         where: {
           user_id: userId
         }
       })
+      // 유저가 존재한지 체크
       if (isVerifiedUser) {
-        const userPlant = await this.prisma.user_plants.findFirst({
-          where: {
-            user_id: isVerifiedUser.user_id,
-            plants_is_done: false
-          }
-        });
-
-        const plant = await this.prisma.plants.findUnique({
-          where: {
-            plant_id: userPlant?.plant_id
-          }
-        });
-
         return {
-          user: isVerifiedUser,
-          userPlant: userPlant,
-          plant: plant
+          result: 'success',
+          data: isVerifiedUser
         }
       } else {
-        throw new UnauthorizedException("INVALID_TOKEN")
+        return {
+          result: 'fail',
+          message: 'DATA NOT FOUND'
+        }
       }
     } catch(error) {
       console.log(error);
       if (error.name == "TokenExpiredError") {
-        throw new UnauthorizedException("EXPIRED_TOKEN")
+        return {
+          result: 'fail',
+          message: 'EXPIRED_TOKEN'
+        }
       }
-      throw new UnauthorizedException("INVALID_TOKEN")
+
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
     }
   }
 
