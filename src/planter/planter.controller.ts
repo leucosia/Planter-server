@@ -20,6 +20,16 @@ export class PlanterController {
   }
 
   @ApiOperation({
+    summary: "모든 식물 정보 API",
+    description: "모든 식물 정보를 얻을 수 있는 API 입니다."
+  })
+  @Get('/all-plant')
+  async getAllPlant() {
+    console.log("test")
+    return this.planterService.getAllPlanter();
+  }
+
+  @ApiOperation({
     summary: "유저 식물 정보 API (식물 ID)",
     description: "식물 ID값을 바탕으로 유저 식물 정보를 반환합니다."
   })

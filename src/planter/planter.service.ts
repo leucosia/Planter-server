@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.client';
 
 @Injectable()
@@ -34,6 +34,15 @@ export class PlanterService {
     } catch(error) {
       console.log(error);
       throw new UnauthorizedException('INVALID_REQUEST');
+    }
+  }
+
+  async getAllPlanter() {
+    try {
+      return await this.prisma.plants.findMany();
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException("NO_DATA_FOUND")
     }
   }
 }
