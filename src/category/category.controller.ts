@@ -19,7 +19,7 @@ export class CategoryController {
   @Post()
   async create(@Body() createCategoryDto: CreateCategoryDto, @Request() req) {
     const userId = req.user.userId
-    return this.categoryService.create(createCategoryDto, userId);
+    return await this.categoryService.create(createCategoryDto, userId);
   }
 
   @ApiOperation({
@@ -29,7 +29,7 @@ export class CategoryController {
   @Get()
   async findAll(@Request() req) {
     const userId = req.user.userId
-    return this.categoryService.findAll(userId)
+    return await this.categoryService.findAll(userId)
   }
 
   @ApiOperation({
@@ -39,7 +39,7 @@ export class CategoryController {
   @Get(':id')
   async findCategory(@Param('id', ParseIntPipe) categoryId: number, @Request() req) {
     const userId = req.user.userId
-    return this.categoryService.findOne(categoryId, userId)
+    return await this.categoryService.findOne(categoryId, userId)
   }
 
   @ApiOperation({
@@ -50,7 +50,7 @@ export class CategoryController {
   @Post(':id')
   async updateCategory(@Param('id', ParseIntPipe) categoryId: number, @Request() req, @Body() updateCategoryDto: UpdateCategoryDto){
     const userId = req.user.userId
-    return this.categoryService.updateCategory(categoryId, userId, updateCategoryDto)
+    return await this.categoryService.updateCategory(categoryId, userId, updateCategoryDto)
   }
 
   @ApiOperation({
@@ -60,6 +60,6 @@ export class CategoryController {
   @Delete(':category_id')
   async deleteCategory(@Param('category_id', ParseIntPipe) categoryId: number, @Request() req) {
     const userId = req.user.userId;
-    return this.categoryService.deleteCategory(categoryId, userId);
+    return await this.categoryService.deleteCategory(categoryId, userId);
   }
 }

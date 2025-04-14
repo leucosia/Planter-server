@@ -9,7 +9,7 @@ export class CategoryService {
     private prisma: PrismaService
   ) {}
 
-  async create(createCategoryDto: CreateCategoryDto, user_id: number) {
+  async create(createCategoryDto: CreateCategoryDto, userId: number): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     try {
       // #이 붙었는지 검사
       if (!createCategoryDto.color?.includes("#")) {
@@ -19,28 +19,39 @@ export class CategoryService {
       // 색상 중복 확인
       const category = await this.prisma.user_categories.findFirst({
         where: {
-          user_id: user_id,
+          user_id: userId,
           color: createCategoryDto.color
         }
       })
 
       if (!category) {
-        return await this.prisma.user_categories.create({
+        const newCategory = await this.prisma.user_categories.create({
           data: {
-            user_id: user_id,
+            user_id: userId,
             color: createCategoryDto.color
           }
-        })
+        });
+
+        return {
+          result: 'success',
+          data: newCategory
+        }
       }
 
-      return 'Duplication Category Color';
+      return {
+        result: 'fail',
+        message: 'Duplication Category Color'
+      }
     } catch (error) {
       console.log(error);
-      throw new UnauthorizedException('INVALID_REQUEST');
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
     }
   }
 
-  async findAll(userId: number) {
+  async findAll(userId: number): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     try {
       const categories = await this.prisma.user_categories.findMany({
         where: {
@@ -54,34 +65,21 @@ export class CategoryService {
         color: null
       }
 
-      return [...categories, extraCategory]
-    } catch(error) {
-      console.log(error);
-      throw new UnauthorizedException('INVALID_REQUEST');
-    }
-  }
-
-  async findOne(categoryId: number, userId: number) {
-    try {
-      return await this.prisma.user_categories.findUnique({
-        where: {
-          user_category_id: categoryId,
-          user_id: userId
-        }
-      });
-    } catch(error) {
-      console.log(error);
-      throw new UnauthorizedException('INVALID_REQUEST');
-    }
-  }
-
-  async updateCategory(categoryId: number, userId: number, updateCategoryDto: UpdateCategoryDto) {
-    try {
-      // #이 붙었는지 검사
-      if (!updateCategoryDto.color?.includes("#")) {
-        throw new UnauthorizedException("INVALID_REQUEST")
+      return {
+        result: 'success',
+        data: [...categories, extraCategory]
       }
+    } catch(error) {
+      console.log(error);
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
+    }
+  }
 
+  async findOne(categoryId: number, userId: number): Promise<SuccessResponse | FailResponse | ErrorResponse> {
+    try {
       const category = await this.prisma.user_categories.findUnique({
         where: {
           user_category_id: categoryId,
@@ -89,6 +87,42 @@ export class CategoryService {
         }
       });
 
+      if (!category) {
+        return {
+          result: 'fail',
+          message: 'DATA NOT FOUND'
+        }
+      }
+
+      return {
+        result: 'success',
+        data: category
+      }
+    } catch(error) {
+      console.log(error);
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
+    }
+  }
+
+  async updateCategory(categoryId: number, userId: number, updateCategoryDto: UpdateCategoryDto): Promise<SuccessResponse | FailResponse | ErrorResponse> {
+    try {
+      // #이 붙었는지 검사
+      if (!updateCategoryDto.color?.includes("#")) {
+        throw new UnauthorizedException("INVALID_REQUEST")
+      }
+
+      // 수정하고자 하는 category 찾기
+      const category = await this.prisma.user_categories.findUnique({
+        where: {
+          user_category_id: categoryId,
+          user_id: userId
+        }
+      });
+
+      // 카테고리가 존재 시
       if (category) {
         // 중복된 색상이 있으면 안됨
         let duplicatedColor = await this.prisma.user_categories.findFirst({
@@ -99,15 +133,13 @@ export class CategoryService {
         })
 
         if (duplicatedColor) {
-          throw new BadRequestException("Duplication Color")
+          return {
+            result: 'fail',
+            message: 'Duplication Color'
+          }
         }
-
-        // 기본 카테고리는 변경 안됨
-        if (category.color == "#74c270") {
-          throw new UnauthorizedException("UNMODIFIABLE_CATEGORY")
-        }
-
-        return await this.prisma.user_categories.update({
+      
+        const updatedCategory = await this.prisma.user_categories.update({
           where: {
             user_category_id: categoryId,
             user_id: userId
@@ -115,17 +147,28 @@ export class CategoryService {
           data: {
             color: updateCategoryDto.color
           }
-        })
+        });
+
+        return {
+          result: 'success',
+          data: updatedCategory
+        }
       } else {
-        throw new UnauthorizedException("INVALID_REQUEST")
+        return {
+          result: 'fail',
+          message: 'DATA NOT FOUND'
+        }
       }
     } catch (error) {
       console.log(error);
-      throw new UnauthorizedException("INVALID_REQUEST")
+      return {
+        result: 'error',
+        message: "INVALID_REQUEST"
+      }
     }
   }
 
-  async deleteCategory(categoryId: number, userId: number) {
+  async deleteCategory(categoryId: number, userId: number): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     try {
       const category = await this.prisma.user_categories.findUnique({
         where: {
@@ -134,7 +177,10 @@ export class CategoryService {
       })
 
       if (!category) {
-        throw new BadRequestException("Category does not exist")
+        return {
+          result: 'fail',
+          message: "Category does not exist"
+        }
       }
 
       const categoryCount = await this.prisma.user_categories.count({
@@ -144,7 +190,10 @@ export class CategoryService {
       })
 
       if (categoryCount < 5) {
-        throw new BadRequestException("At least one category must exist.")
+        return {
+          result: 'fail',
+          message: "At least one category must exist."
+        }
       }
 
       await this.prisma.todos.updateMany({
@@ -157,15 +206,23 @@ export class CategoryService {
         }
       })
 
-      await this.prisma.user_categories.delete({
+      const deletedCategory = await this.prisma.user_categories.delete({
         where: {
           user_id: userId,
           user_category_id: categoryId
         },
       });
+
+      return {
+        result: 'success',
+        data: deletedCategory
+      }
     } catch(error) {
       console.log(error);
-      throw new UnauthorizedException('INVALID_REQUEST');
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
     }
   }
 }
