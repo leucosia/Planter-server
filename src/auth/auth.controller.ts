@@ -22,7 +22,7 @@ export class AuthController {
   @ApiBody({ type: AuthGoogleLoginBody })
   @ApiResponse({ type: AuthLoginResponse })
   async googleLogin(@Body('token') token: string) {
-    return this.authService.googleLogin(token);
+    return await this.authService.googleLogin(token);
   }
 
   @ApiOperation({
@@ -33,7 +33,7 @@ export class AuthController {
   @ApiBody({ type: AuthAppleLoginBody })
   @ApiResponse({ type: AuthLoginResponse })
   async appleLogin(@Body('token') token: string ) {
-    return this.authService.appleLogin(token);
+    return await this.authService.appleLogin(token);
   }
 
   @ApiOperation({
@@ -44,7 +44,7 @@ export class AuthController {
   @ApiBody({ type: AuthRefreshTokenBody })
   @ApiResponse({ type: AuthLoginResponse })
   async login(@Body('refreshToken') refresh_token: string) {
-    return this.authService.refreshToken(refresh_token);
+    return await this.authService.refreshToken(refresh_token);
   }
 
   @ApiOperation({
@@ -73,6 +73,6 @@ export class AuthController {
   @Delete()
   async withdraw(@Request() req) {
     const userId = req.user.userId;
-    return this.authService.withdraw(userId)
+    return await this.authService.withdraw(userId)
   }
 }
