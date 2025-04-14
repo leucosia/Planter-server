@@ -65,7 +65,7 @@ export class AuthController {
   }
 
   @ApiOperation({
-    summary: "Apple 회원 탈퇴 API",
+    summary: "회원 탈퇴 API",
     description: "회원 탈퇴 API입니다."
   })
   @ApiBearerAuth()

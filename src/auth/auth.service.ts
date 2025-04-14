@@ -52,7 +52,7 @@ export class AuthService {
     return refreshToken
   }
 
-  public async refreshToken(refresh_token: string): Promise<AuthLoginResponse> {
+  public async refreshToken(refresh_token: string): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     try {
       const user = await this.prisma.user.findFirst({
         where: { 
@@ -67,14 +67,21 @@ export class AuthService {
           user.platform
         )
       } else {
-        throw new UnauthorizedException('Invalid Refresh Token');
+        return {
+          result: 'fail',
+          message: 'Invalid Refresh Token'
+        }
       }
     } catch(error) {
       console.log(error);
-      throw new UnauthorizedException('INVALID_REQUEST');
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
     }
   }
 
+  // TODO: - 토큰 검증 과정에서 UnauthorizedException에 대한 추가적인 처리가 필요.
   private validateRefreshToken(refresh_token: string): boolean {
     try {
       // 토큰 디코드해서 만료 시간 확인
@@ -97,7 +104,7 @@ export class AuthService {
     }
   }
 
-  async login(email: string, name: string, platform: string): Promise<AuthLoginResponse> {
+  async login(email: string, name: string, platform: string): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     try {
       let user = await this.prisma.user.findFirst({
         where: { email: email },
@@ -112,14 +119,14 @@ export class AuthService {
             name: name,
             platform: platform,
           }
-        })
+        });
 
         // 기본 식물 생성
         let userPlant = await this.prisma.user_plants.create({
           data: {
             user_id: user.user_id,
           },
-        })
+        });
 
         // 유저에게 할당
         await this.prisma.user.update({
@@ -129,7 +136,7 @@ export class AuthService {
           data: {
             user_plant_id: userPlant.user_plant_id
           }
-        })
+        });
 
         // 기본 카테고리 생성
         await this.prisma.user_categories.createMany({
@@ -167,7 +174,7 @@ export class AuthService {
               color: "#CBA5FF"
             }
           ]
-        })
+        });
       }
 
       const accessToken = await this.createAccessToken(user);
@@ -178,20 +185,27 @@ export class AuthService {
         data: {
           refreshToken: refreshToken
         }
-      })
+      });
 
       return {
-        accessToken: accessToken,
-        refreshToken: refreshToken
+        result: 'success',
+        data: {
+          accessToken: accessToken,
+          refreshToken: refreshToken
+        }
       }
     }
     catch(error) {
       console.log(error);
-      throw new UnauthorizedException('INVALID_REQUEST');
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
     }
   }
 
-  async googleLogin(token: string): Promise<AuthLoginResponse> {
+  // TODO: - 토큰 검증 과정에서 UnauthorizedException에 대한 추가적인 처리가 필요.
+  async googleLogin(token: string): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     try {
       const verifiedUser = await this.verifyGoogleToken(token);
 
@@ -203,10 +217,14 @@ export class AuthService {
       );
     } catch (error) {
       console.log(error);
-      throw new UnauthorizedException('Google token verification failed: ' + error);
+      return {
+        result: 'error',
+        message: 'Google token verification failed'
+      }
     }
   }
 
+  // TODO: - 토큰 검증 과정에서 UnauthorizedException에 대한 추가적인 처리가 필요.
   async verifyGoogleToken(token: string): Promise<{ email: string; name: string}> {
     try {
       const decodedToken = await admin.auth().verifyIdToken(token);
@@ -228,7 +246,7 @@ export class AuthService {
     return crypto.getRandomValues(new Uint32Array(16)).join('');
   }
 
-  async appleLogin(token: string): Promise<AuthLoginResponse> {
+  async appleLogin(token: string): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     try {
       const verifiedUser = await this.verifyAppleToken(token);
 
@@ -239,10 +257,14 @@ export class AuthService {
       );
     } catch (error) {
       console.log(error);
-      throw new UnauthorizedException('Apple token verification failed: ' + error);
+      return {
+        result: 'error',
+        message: 'Apple token verification failed'
+      }
     }
   }
 
+  // TODO: - 토큰 검증 과정에서 UnauthorizedException에 대한 추가적인 처리가 필요.
   async verifyAppleToken(token: string): Promise<{ email: string, name: string}> {
     try {
       // JWT에서 kid 추출
