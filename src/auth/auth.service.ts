@@ -319,7 +319,9 @@ export class AuthService {
   }
 
   // 회원 탈퇴
-  async withdraw(userId: number) {
+  // TODO: - 유저가 바로 삭제 되는것이 좋은 동작은 아닌 것 같다. 좀 더 좋은 방법이 필요하다.
+  // TODO: - Apple이나 구글 자체에 삭제되는 기능이 없다. 이 부분도 추가 구현 필요.
+  async withdraw(userId: number): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     try {
       const user = await this.prisma.user.findUnique({
         where: {
@@ -328,7 +330,10 @@ export class AuthService {
       })
 
       if (!user) {
-        throw new UnauthorizedException("USER NOT FIND")
+        return {
+          result: 'fail',
+          message: 'DATA NOT FOUND'
+        }
       }
 
       // Firebase 회원 탈퇴
@@ -340,9 +345,9 @@ export class AuthService {
         where: {
           user_id: userId
         }
-      })
+      });
 
-      // 유저 TODO 삭제
+      // complete_todo를 조회하기 위해 찾기
       const todos = await this.prisma.todos.findMany({
         where: {
           user_id: userId
@@ -350,21 +355,23 @@ export class AuthService {
       });
       const todoIds = (await todos).map(todo => todo.todo_id);
 
+      // 유저 complete_todo 삭제
       await this.prisma.complete_todos.deleteMany({
         where: {
           todo_id: {
             in: todoIds
           }
         }
-      })
+      });
 
+      // 유저 TODO 삭제
       await this.prisma.todos.deleteMany({
         where: {
           todo_id: {
             in: todoIds
           }
         }
-      })
+      });
 
       // 유저 카테고리 삭제
       await this.prisma.user_categories.deleteMany({
@@ -374,14 +381,30 @@ export class AuthService {
       });
 
       // 유저 삭제
-      await this.prisma.user.delete({
+      const deletedUser = await this.prisma.user.delete({
         where: {
           user_id: userId
         }
-      })
+      });
+
+      // 삭제 된 값이 없으면 에러 반환
+      if (!user) {
+        return {
+          result: 'fail',
+          message: 'DATA NOT FOUND'
+        }
+      }
+
+      return {
+        result: 'success',
+        data: deletedUser
+      }
     } catch(error) {
       console.log(error);
-      throw new UnauthorizedException("DB DELETE FAIL")
+      return {
+        result: 'error',
+        message: 'USER DELETE ERROR'
+      }
     }
   }
 }
