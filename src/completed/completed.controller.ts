@@ -13,7 +13,7 @@ export class CompletedController {
     summary: "금일 Completed TODO 목록 조회",
     description: "금일 TODO 목록 조회 API 입니다. completed todo를 조회해줍니다."
   })
-  @Get()
+  @Get('/today')
   async todayTodos(@Request() req) {
     const userId = req.user.userId
     return await this.completedService.todayTodosGet(userId)

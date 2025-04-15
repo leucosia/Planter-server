@@ -1,4 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import * as dayjs from 'dayjs';
+import * as utc from 'dayjs/plugin/utc';
+import * as timezone from 'dayjs/plugin/timezone';
 import { PrismaService } from 'src/prisma.client';
 
 @Injectable()
@@ -7,48 +10,66 @@ export class CompletedService {
     private prisma: PrismaService
   ){}
 
-  async todayTodosGet(user_id: number) {
+  // 오늘 TODO 목록 가져오기
+  // 타임존 문제가 있어서 시간이 이상하다. 한국 기준으로 하고 싶은데, 이것을 한국 기준으로 수정해서 하는것이 옳은지 모르겠다.
+  async todayTodosGet(user_id: number): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     try {
       // 금일 설정
-      const startOfToday = new Date();
-      startOfToday.setHours(0, 0, 0, 0);
-      const endOfToday = new Date();
-      endOfToday.setDate(endOfToday.getDate() + 1);
-      endOfToday.setHours(0, 0, 0, 0);
+      dayjs.extend(utc);
+      dayjs.extend(timezone);
+      
+      const nowKST = dayjs().tz('Asia/Seoul');
+      
+      const startOfToday = dayjs().tz('Asia/Seoul').startOf('day');
+
+      const endOfToday = startOfToday.add(1, 'day');
+
+      const startDate = startOfToday.toDate();
+      const endDate = endOfToday.toDate();
 
       // 아직 마감안된 TODO 조회
       let todos = this.prisma.todos.findMany({
         where: {
           user_id: user_id,
           start_date: {
-            lte: startOfToday
+            lte: endDate
           },
           end_date: {
-            gt: endOfToday
+            gte: startDate
           }
         },
       });
       const todoIds = (await todos).map(todo => todo.todo_id);
 
-      return await this.prisma.complete_todos.findMany({
+      const todayTodos = await this.prisma.complete_todos.findMany({
         where: {
           todo_id: {
             in: todoIds
           },
           complete_at: {
-            gte: startOfToday,
-            lt: endOfToday
+            gte: startDate,
+            lt: endDate
           },
         }
       });
+      
+      return {
+        result: 'success',
+        data: todayTodos
+      }
     } catch(error) {
       console.log(error);
-      throw new UnauthorizedException('INVALID_REQUEST');
+
+      // 에러 메시지 별로 반환을 해주는 것이 맞을까? 에러 메시지를 자세하게 반환하는건 보안상 안좋지만, 지금 너무 러프하게 반환하고 있다.
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
     }
   }
 
   // 완료 여부 변경
-  async toggleTodoCompletion(complete_todo_id: number, user_id: number) {
+  async toggleTodoCompletion(complete_todo_id: number, user_id: number): Promise<SuccessResponse | FailResponse | ErrorResponse> {
       try {
         const completed_todo = await this.prisma.complete_todos.findUnique({
           where: {
@@ -132,8 +153,11 @@ export class CompletedService {
             });
 
             return {
-              userPlant: updatedUserPlant,
-              plant: updatedPlant
+              result: 'success',
+              data: {
+                userPlant: updatedUserPlant,
+                plant: updatedPlant
+              }
             }
           }
 
@@ -151,21 +175,30 @@ export class CompletedService {
             });
 
             return {
-              userPlant: updatedPlant,
-              plant: plant
+              result: 'success',
+              data: {
+                userPlant: updatedPlant,
+                plant: plant
+              }
             }
           }
         } else {
-          throw new UnauthorizedException("INVALID_REQUEST");
+          return {
+            result: 'fail',
+            message: "INVALID_REQUEST"
+          }
         }
     } catch(error) {
       console.log(error);
-      throw new UnauthorizedException('INVALID_REQUEST');
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
     }
   }
 
   // 특정 기간 동안 조회
-  async getTodoByDateRange(start_date_string: string, end_date_string: string, userId: number) {
+  async getTodoByDateRange(start_date_string: string, end_date_string: string, userId: number): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     try {
       if (start_date_string && end_date_string) {
         const start_date = new Date(start_date_string);
@@ -184,7 +217,7 @@ export class CompletedService {
         });
         const todoIds = (await todos).map(todo => todo.todo_id);
 
-        return await this.prisma.complete_todos.findMany({
+        const completedTodos = await this.prisma.complete_todos.findMany({
           where: {
             todo_id: {
               in: todoIds
@@ -195,12 +228,24 @@ export class CompletedService {
             }
           }
         });
+
+        return {
+          result: 'success',
+          data: completedTodos
+        }
       } else {
-        throw new UnauthorizedException("INVALID_REQUEST");
+        return {
+          result: 'fail',
+          message: "INVALID_REQUEST"
+        }
       }
     } catch(error) {
       console.log(error);
-      throw new UnauthorizedException('INVALID_REQUEST');
+
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
     }
   }
 }
