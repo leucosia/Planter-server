@@ -198,20 +198,20 @@ export class CompletedService {
   }
 
   // 특정 기간 동안 조회
-  async getTodoByDateRange(start_date_string: string, end_date_string: string, userId: number): Promise<SuccessResponse | FailResponse | ErrorResponse> {
+  async getTodoByDateRange(startDateString: string, endDateString: string, userId: number): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     try {
-      if (start_date_string && end_date_string) {
-        const start_date = new Date(start_date_string);
-        const end_date = new Date(end_date_string);
+      if (startDateString && endDateString) {
+        const startDate = dayjs(startDateString).startOf('day').toDate();
+        const endDate = dayjs(endDateString).add(1, 'day').toDate();
 
         const todos = await this.prisma.todos.findMany({
           where: {
             user_id: userId,
             start_date: {
-              lte: start_date
+              lte: endDate
             },
             end_date: {
-              gt: end_date
+              gte: startDate
             }
           }
         });
@@ -223,9 +223,9 @@ export class CompletedService {
               in: todoIds
             },
             complete_at: {
-              gte: start_date,
-              lt: end_date
-            }
+              gte: startDate,
+              lt: endDate
+            },
           }
         });
 
