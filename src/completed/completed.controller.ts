@@ -1,6 +1,6 @@
 import { Controller, Get, UseGuards, Request, Patch, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { CompletedService } from './completed.service';
-import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthJWTGuard } from 'src/auth/auth.jwt.guard';
 
 @UseGuards(AuthJWTGuard)
@@ -24,6 +24,21 @@ export class CompletedController {
     description: "complete_todo_id 값을 id값으로 입력하면 해당 completed_todo 완료 여부가 toggle 됩니다."
   })
   @Patch(':id')
+  @ApiResponse({
+    schema: {
+      properties: {
+        type: {
+          description: '경험치가 가득 차 식물이 바뀌는 경우에만 LEVEL_UP을 반환, 나머지 케이스에서는 SUCCESS 반환.',
+          example: 'SUCCESS | LEVEL_UP'
+        },
+        next_plant_id: {
+          description: 'type이 LEVEL_UP 시 유저 식물 ID 반환, SUCCESS 시 반환되지 않음',
+          example: '유저 식물 ID'
+        }
+      }
+    }
+  })
+
   async completedToggle(@Param('id', ParseIntPipe) id: number, @Request() req) {
     const userId = req.user.userId;
     return await this.completedService.toggleTodoCompletion(id, userId);
