@@ -57,8 +57,8 @@ export class CategoryController {
     summary: "카테고리 삭제 API",
     description: "Category id로 카테고리 삭제 API 입니다."
   })
-  @Delete(':category_id')
-  async deleteCategory(@Param('category_id', ParseIntPipe) categoryId: number, @Request() req) {
+  @Delete(':id')
+  async deleteCategory(@Param('id', ParseIntPipe) categoryId: number, @Request() req) {
     const userId = req.user.userId;
     return await this.categoryService.deleteCategory(categoryId, userId);
   }

@@ -20,7 +20,6 @@ export class TodosController {
     description: "TODO 생성 API"
   })
   @ApiBody({ type: CreateTodoBodyDto })
-  @ApiResponse({ type: CreateTodoResponseDTO})
   @Post()
   async create(@Body() createTodoDto: CreateTodoBodyDto, @Request() req) {
     const userId = req.user.userId
@@ -52,7 +51,6 @@ export class TodosController {
     description: "TODO 업데이트 API"
   })
   @ApiBody({ type: UpdateTodoBodyDto })
-  @ApiResponse({ type: UpdateTodoResponseDto })
   @Post(':id')
   async update(@Param('id', ParseIntPipe) todo_id: number, @Request() req, @Body() updateTodoDto: UpdateTodoBodyDto) {
     const userId = req.user.userId
