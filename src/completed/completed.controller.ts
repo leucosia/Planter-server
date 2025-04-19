@@ -2,6 +2,7 @@ import { Controller, Get, UseGuards, Request, Patch, Param, ParseIntPipe, Query 
 import { CompletedService } from './completed.service';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthJWTGuard } from 'src/auth/auth.jwt.guard';
+import { CompletedTodo } from 'src/common/types/completed.todo.type';
 
 @UseGuards(AuthJWTGuard)
 @ApiBearerAuth()
@@ -13,6 +14,7 @@ export class CompletedController {
     summary: "금일 Completed TODO 목록 조회",
     description: "금일 TODO 목록 조회 API 입니다. completed todo를 조회해줍니다."
   })
+  @ApiResponse({ type: [CompletedTodo] })
   @Get('/today')
   async todayTodos(@Request() req) {
     const userId = req.user.userId
@@ -38,7 +40,6 @@ export class CompletedController {
       }
     }
   })
-
   async completedToggle(@Param('id', ParseIntPipe) id: number, @Request() req) {
     const userId = req.user.userId;
     return await this.completedService.toggleTodoCompletion(id, userId);
@@ -48,6 +49,7 @@ export class CompletedController {
     summary: "특정 기간 TODO 조회 API",
     description: "시작일~마감일 기간 동안 completed_todo를 조회하는 API"
   })
+  @ApiResponse({ type: [CompletedTodo] })
   @Get('/range')
   async todosByDateRange(@Query('startDate') startDate: string, @Query('endDate') endDate: string, @Request() req) {
     const userId = req.user.userId;
