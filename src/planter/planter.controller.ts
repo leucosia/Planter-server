@@ -16,7 +16,7 @@ export class PlanterController {
     description: "유저의 모든 식물 정보를 반환하는 API 입니다."
   })
   @ApiResponse({ type: [UserPlant] })
-  @Get("/userplant/all")
+  @Get("/user/all")
   async getUserPlantFromToken(@Request() req) {
     const userId = req.user.userId;
     return await this.planterService.getAllUserPlants(userId);
@@ -27,7 +27,7 @@ export class PlanterController {
     description: "식물 ID값을 바탕으로 유저 식물 정보를 반환합니다."
   })
   @ApiResponse({ type: UserPlant })
-  @Get('/userplant/:id')
+  @Get('/user/:id')
   async getUserPlant(@Param('id', ParseIntPipe) userPlantId: number, @Request() req) {
     const userId = req.user.userId;
     return await this.planterService.getUserPlant(userId, userPlantId);
