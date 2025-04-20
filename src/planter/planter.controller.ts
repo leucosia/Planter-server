@@ -40,7 +40,7 @@ export class PlanterController {
   @ApiResponse({ type: [Plant] })
   @Get('/plant/all')
   async getAllPlant() {
-    return this.planterService.getAllPlants();
+    return await this.planterService.getAllPlants();
   }
 
   @ApiOperation({
