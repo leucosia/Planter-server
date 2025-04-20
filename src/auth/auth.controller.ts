@@ -61,7 +61,7 @@ export class AuthController {
   @ApiResponse({ type: AuthUserInfoResponse })
   async verifyToken(@Request() req) {
     const userId = req.user.userId;
-    return this.authService.getUserInfo(userId)
+    return await this.authService.getUserInfo(userId)
   }
 
   @ApiOperation({

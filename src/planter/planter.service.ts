@@ -8,55 +8,123 @@ export class PlanterService {
   ){}
 
   // User ID를 기반으로 User 식물 정보를 얻는 함수
-  async getUserPlant(userId: number, userPlantId: number) {
+  async getUserPlant(userId: number, userPlantId: number): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     try {
-      return await this.prisma.user_plants.findUnique({
+      const userPlant = await this.prisma.user_plants.findUnique({
         where: {
           user_id: userId,
           user_plant_id: userPlantId
         }
       })
+
+      if (userPlant) {
+        return {
+          result: 'success',
+          data: userPlant
+        }
+      }
+      else {
+        return {
+          result: 'fail',
+          message: 'DATA_NOT_FOUND'
+        }
+      }
     } catch(error) {
       console.log(error);
-      throw new BadRequestException('INVALID_REQUEST');
+
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
     }
   }
 
   // Plant ID를 기반으로 식물 정보를 얻는 함수
-  async getPlant(plantId: number) {
+  async getPlant(plantId: number): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     try {
-      return await this.prisma.plants.findUnique({
+      const plant = await this.prisma.plants.findUnique({
         where: {
           plant_id: plantId
         }
       });
+
+      if (plant) {
+        return {
+          result: 'success',
+          data: plant
+        }
+      }
+      else {
+        return {
+          result: 'fail',
+          message: 'DATA_NOT_FOUND'
+        }
+      }
     } catch(error) {
       console.log(error);
-      throw new BadRequestException('INVALID_REQUEST');
+
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
     }
   }
 
   // 모든 식물 정보를 가져오는 함수
-  async getAllPlants() {
+  async getAllPlants(): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     try {
-      return await this.prisma.plants.findMany();
+      const plants = await this.prisma.plants.findMany();
+
+      if (plants) {
+        return {
+          result: 'success',
+          data: plants
+        }
+      }
+      else {
+        return {
+          result: 'fail',
+          message: 'DATA_NOT_FOUND'
+        }
+      }
     } catch (error) {
       console.log(error);
-      throw new BadRequestException("NO_DATA_FOUND")
+
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
     }
   }
 
   // 모든 유저 식물 정보를 가져오는 함수
-  async getAllUserPlants(userId: number) {
+  async getAllUserPlants(userId: number): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     try {
-      return await this.prisma.user_plants.findMany({
+      const userPlants = await this.prisma.user_plants.findMany({
         where: {
           user_id: userId
         }
       });
+
+      if (userPlants) {
+        return {
+          result: 'success',
+          data: userPlants
+        }
+      }
+      else {
+        return {
+          result: 'fail',
+          message: 'DATA_NOT_FOUND'
+        }
+      }
     } catch(error) {
       console.log(error);
-      throw new BadRequestException('INVALID_REQUEST');
+
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
     }
   }
 }

@@ -11,7 +11,7 @@ export class TodosService {
     private prisma: PrismaService
   ) {}
 
-  async create(createTodoDto: CreateTodoBodyDto, userId: number) : Promise<CreateTodoResponseDTO> {
+  async create(createTodoDto: CreateTodoBodyDto, userId: number): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     // 정상적인 user_plant_id인지 체크
     try {
       const user_plant = await this.prisma.user_plants.findUnique({
@@ -58,52 +58,87 @@ export class TodosService {
         }
 
         return {
-          todo_id: todo.todo_id,
-          title: todo.title,
-          description: todo.description,
-          start_date: todo.start_date,
-          end_date: todo.end_date,
-          is_done: false,
-          user_plant_id: todo.user_plant_id,
-          user_category_id: todo.user_category_id
-        }; 
+          result: 'success',
+          data: todo
+        } 
       } else {
-        throw new UnauthorizedException("Invalid TODO Creation")
+        return {
+          result: 'fail',
+          message: 'WRONG_APPROACH'
+        }
       }
     } catch(error) {
       console.log(error)
-      throw new UnauthorizedException("Invalid TODO Creation")
+
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
     }
   }
 
-  async findAll(user_id: number) {
+  async findAll(user_id: number): Promise<SuccessResponse | FailResponse | ErrorResponse>  {
     try {
-      return this.prisma.todos.findMany({
+      const todos = await this.prisma.todos.findMany({
         where: {
           user_id: user_id
         }
       });
+
+      if (todos) {
+        return {
+          result: 'success',
+          data: todos
+        }
+      }
+      else {
+        return {
+          result: 'fail',
+          message: 'DATA_NOT_FOUND'
+        }
+      }
     } catch(error) {
       console.log(error);
-      throw new UnauthorizedException('INVALID_REQUEST');
+
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
     }
   }
 
-  async findOne(todo_id: number, user_id: number) {
+  async findOne(todo_id: number, user_id: number): Promise<SuccessResponse | FailResponse | ErrorResponse>  {
     try {
-      return this.prisma.todos.findUnique({
+      const todo = await this.prisma.todos.findUnique({
         where: {
           user_id: user_id,
           todo_id: todo_id
         }
       });
+      
+      if (todo) {
+        return {
+          result: 'success',
+          data: todo
+        }
+      }
+      else {
+        return {
+          result: 'fail',
+          message: 'DATA_NOT_FOUND'
+        }
+      }
     } catch(error) {
       console.log(error);
-      throw new UnauthorizedException('INVALID_REQUEST');
+
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
     }
   }
 
-  async update(todoId: number, userId: number, updateTodoDto: UpdateTodoBodyDto): Promise<UpdateTodoResponseDto> {
+  async update(todoId: number, userId: number, updateTodoDto: UpdateTodoBodyDto): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     try {
       const todo = await this.prisma.todos.findUnique({
         where: {
@@ -116,7 +151,7 @@ export class TodosService {
         const updateStartDate = new Date(updateTodoDto.start_date);
         const updateEndDate = new Date(updateTodoDto.end_date);
 
-        const new_todo = await this.prisma.todos.update({
+        const newTodo = await this.prisma.todos.update({
           where: {
             todo_id: todoId,
             user_id: userId
@@ -191,35 +226,62 @@ export class TodosService {
           });
         }
 
-        return {
-          todo_id: new_todo.todo_id,
-          title: new_todo.title,
-          description: new_todo.description,
-          start_date: new_todo.start_date,
-          end_date: new_todo.end_date,
-          user_category_id: new_todo.user_category_id,
-          user_plant_id: new_todo.user_plant_id
+        if (newTodo) {
+          return {
+            result: 'success',
+            data: newTodo
+          }
+        }
+        else {
+          return {
+            result: 'fail',
+            message: 'TODO_UPDATE_FAILED'
+          }
         }
       } else {
-        throw new UnauthorizedException("Invalid TODO Update")
+        return {
+          result: 'fail',
+          message: 'TODO_UPDATE_FAILED'
+        }
       }
     } catch(error) {
       console.log(error);
-      throw new UnauthorizedException("Invalid TODO Update")
+
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
     }
   }
 
-  async remove(todo_id: number, user_id: number) {
+  async remove(todo_id: number, user_id: number): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     try {
-      return this.prisma.todos.delete({
+      const todo = await this.prisma.todos.delete({
         where: {
           todo_id: todo_id,
           user_id: user_id
         }
       });
+
+      if (todo) {
+        return {
+          result: 'success',
+          data: todo
+        }
+      }
+      else {
+        return {
+          result: 'fail',
+          message: 'DATA_NOT_FOUND'
+        }
+      }
     } catch(error) {
       console.log(error);
-      throw new UnauthorizedException('INVALID_REQUEST');
+
+      return {
+        result: 'error',
+        message: 'INVALID_REQUEST'
+      }
     }
   }
 }

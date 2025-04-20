@@ -25,7 +25,7 @@ export class CompletedService {
       const endDate = endOfToday.toDate();
 
       // 아직 마감안된 TODO 조회
-      let todos = this.prisma.todos.findMany({
+      let todos = await this.prisma.todos.findMany({
         where: {
           user_id: userId,
           start_date: {
