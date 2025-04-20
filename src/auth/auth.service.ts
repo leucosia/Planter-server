@@ -358,17 +358,6 @@ export class AuthService {
         }
       }
 
-      // Firebase 회원 탈퇴
-      const firebaseUser = await admin.auth().getUserByEmail(user.email);
-      await admin.auth().deleteUser(firebaseUser.uid);
-      
-      // 유저 Plants 삭제
-      await this.prisma.user_plants.deleteMany({
-        where: {
-          user_id: userId
-        }
-      });
-
       // complete_todo를 조회하기 위해 찾기
       const todos = await this.prisma.todos.findMany({
         where: {
@@ -402,6 +391,13 @@ export class AuthService {
         }
       });
 
+      // 유저 Plants 삭제
+      await this.prisma.user_plants.deleteMany({
+        where: {
+          user_id: userId
+        }
+      });
+
       // 유저 삭제
       const deletedUser = await this.prisma.user.delete({
         where: {
@@ -416,6 +412,10 @@ export class AuthService {
           message: 'DATA NOT FOUND'
         }
       }
+
+      // Firebase 회원 탈퇴
+      const firebaseUser = await admin.auth().getUserByEmail(user.email);
+      await admin.auth().deleteUser(firebaseUser.uid);
 
       return {
         result: 'success',
