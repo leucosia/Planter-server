@@ -116,7 +116,7 @@ export class AuthService {
         user = await this.prisma.user.create({
           data: {
             email: email,
-            name: name,
+            name: this.generateRandomUserName(),
             platform: platform,
           }
         });
@@ -428,5 +428,23 @@ export class AuthService {
         message: 'USER DELETE ERROR'
       }
     }
+  }
+
+  // 귀여운 랜덤 이름 만드는 함수
+  generateRandomUserName(): string {
+    const adjectives = [
+      '귀여운', '싱그러운', '느긋한', '화려한', '조용한', '햇살 가득한', '활기찬', '수줍은', '포근한', '청조한',
+      '기운찬', '부드러운', '엉뚱한', '상큼한', '도도한'
+    ]
+    const palntName = [
+      '선인장', '장미', '튤립', '난초', '해바라기', '무화과나무', '모스', '민트', '바질', '대나무', '라벤더',
+      '수국', '소나무', '아레카야자', '꽃양귀비'
+    ]
+
+    const adj = adjectives[Math.floor(Math.random() * adjectives.length)]
+    const name = palntName[Math.floor(Math.random() * palntName.length)]
+    
+
+    return `${adj} ${name}`;
   }
 }
