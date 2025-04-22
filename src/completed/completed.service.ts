@@ -3,6 +3,7 @@ import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import * as timezone from 'dayjs/plugin/timezone';
 import { PrismaService } from 'src/prisma.client';
+import { logErrorToFile } from 'src/common/module/logger';
 
 @Injectable()
 export class CompletedService {
@@ -56,8 +57,8 @@ export class CompletedService {
       }
     } catch(error) {
       console.log(error);
+      logErrorToFile(error);
 
-      // 에러 메시지 별로 반환을 해주는 것이 맞을까? 에러 메시지를 자세하게 반환하는건 보안상 안좋지만, 지금 너무 러프하게 반환하고 있다.
       return {
         result: 'error',
         message: 'INVALID_REQUEST'
@@ -168,6 +169,7 @@ export class CompletedService {
         }
     } catch(error) {
       console.log(error);
+      logErrorToFile(error);
       return {
         result: 'error',
         message: 'INVALID_REQUEST'
@@ -219,6 +221,7 @@ export class CompletedService {
       }
     } catch(error) {
       console.log(error);
+      logErrorToFile(error);
 
       return {
         result: 'error',

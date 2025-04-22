@@ -9,6 +9,7 @@ import * as jwksClient from 'jwks-rsa';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 import { decode } from 'punycode';
+import { logErrorToFile } from 'src/common/module/logger';
 
 @Injectable()
 export class AuthService {
@@ -74,6 +75,7 @@ export class AuthService {
       }
     } catch(error) {
       console.log(error);
+      logErrorToFile(error);
       return {
         result: 'error',
         message: 'INVALID_REQUEST'
@@ -100,6 +102,7 @@ export class AuthService {
       return true;
     } catch (error) {
       console.log(error);
+      logErrorToFile(error);
       throw new UnauthorizedException('Error validating refresh token');
     }
   }
@@ -197,6 +200,7 @@ export class AuthService {
     }
     catch(error) {
       console.log(error);
+      logErrorToFile(error);
       return {
         result: 'error',
         message: 'INVALID_REQUEST'
@@ -217,6 +221,7 @@ export class AuthService {
       );
     } catch (error) {
       console.log(error);
+      logErrorToFile(error);
       return {
         result: 'error',
         message: 'Google token verification failed'
@@ -238,6 +243,7 @@ export class AuthService {
       }
     } catch (error) {
       console.log(error);
+      logErrorToFile(error);
       throw new UnauthorizedException('Google token verification failed: ' + error);
     }
   }
@@ -257,6 +263,7 @@ export class AuthService {
       );
     } catch (error) {
       console.log(error);
+      logErrorToFile(error);
       return {
         result: 'error',
         message: 'Apple token verification failed'
@@ -287,6 +294,7 @@ export class AuthService {
       };
     } catch (error) {
       console.log(error);
+      logErrorToFile(error);
       throw new UnauthorizedException('Apple token verification failed: ' + error);
     }
   }
@@ -326,6 +334,7 @@ export class AuthService {
       }
     } catch(error) {
       console.log(error);
+      logErrorToFile(error);
       if (error.name == "TokenExpiredError") {
         return {
           result: 'fail',
@@ -423,6 +432,7 @@ export class AuthService {
       }
     } catch(error) {
       console.log(error);
+      logErrorToFile(error);
       return {
         result: 'error',
         message: 'USER DELETE ERROR'

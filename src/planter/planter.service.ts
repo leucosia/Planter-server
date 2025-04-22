@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { logErrorToFile } from 'src/common/module/logger';
 import { PrismaService } from 'src/prisma.client';
 
 @Injectable()
@@ -31,6 +32,7 @@ export class PlanterService {
       }
     } catch(error) {
       console.log(error);
+      logErrorToFile(error);
 
       return {
         result: 'error',
@@ -62,6 +64,7 @@ export class PlanterService {
       }
     } catch(error) {
       console.log(error);
+      logErrorToFile(error);
 
       return {
         result: 'error',
@@ -89,6 +92,7 @@ export class PlanterService {
       }
     } catch (error) {
       console.log(error);
+      logErrorToFile(error);
 
       return {
         result: 'error',
@@ -120,6 +124,7 @@ export class PlanterService {
       }
     } catch(error) {
       console.log(error);
+      logErrorToFile(error);
 
       return {
         result: 'error',

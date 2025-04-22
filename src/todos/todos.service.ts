@@ -4,6 +4,7 @@ import { CreateTodoBodyDto } from './dto/create.todo.body.dto';
 import { CreateTodoResponseDTO } from './dto/create.todo.response.dto';
 import { UpdateTodoBodyDto } from './dto/update.todo.body.dto';
 import { UpdateTodoResponseDto } from './dto/update.todo.response.dto';
+import { logErrorToFile } from 'src/common/module/logger';
 
 @Injectable()
 export class TodosService {
@@ -68,7 +69,8 @@ export class TodosService {
         }
       }
     } catch(error) {
-      console.log(error)
+      console.log(error);
+      logErrorToFile(error);
 
       return {
         result: 'error',
@@ -99,6 +101,7 @@ export class TodosService {
       }
     } catch(error) {
       console.log(error);
+      logErrorToFile(error);
 
       return {
         result: 'error',
@@ -130,6 +133,7 @@ export class TodosService {
       }
     } catch(error) {
       console.log(error);
+      logErrorToFile(error);
 
       return {
         result: 'error',
@@ -246,6 +250,7 @@ export class TodosService {
       }
     } catch(error) {
       console.log(error);
+      logErrorToFile(error);
 
       return {
         result: 'error',
@@ -277,6 +282,7 @@ export class TodosService {
       }
     } catch(error) {
       console.log(error);
+      logErrorToFile(error);
 
       return {
         result: 'error',
