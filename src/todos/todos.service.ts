@@ -5,6 +5,7 @@ import { CreateTodoResponseDTO } from './dto/create.todo.response.dto';
 import { UpdateTodoBodyDto } from './dto/update.todo.body.dto';
 import { UpdateTodoResponseDto } from './dto/update.todo.response.dto';
 import { logErrorToFile } from 'src/common/module/logger';
+import { user_categories } from '@prisma/client';
 
 @Injectable()
 export class TodosService {
@@ -15,7 +16,7 @@ export class TodosService {
   async create(createTodoDto: CreateTodoBodyDto, userId: number): Promise<SuccessResponse | FailResponse | ErrorResponse> {
     // 정상적인 user_plant_id인지 체크
     try {
-      const user_plant = await this.prisma.user_plants.findUnique({
+      const userPlant = await this.prisma.user_plants.findUnique({
         where: {
           user_plant_id: createTodoDto.user_plant_id,
           user_id: userId
@@ -23,16 +24,20 @@ export class TodosService {
       });
 
       // 정상적인 user_category_id인지 체크
-      const user_category = await this.prisma.user_categories.findUnique({
-        where: {
-          user_category_id: createTodoDto.user_category_id
-        }
-      });
+      let userCategory: user_categories | null = null;
+
+      if (createTodoDto.user_category_id !== undefined && createTodoDto.user_category_id !== null) {
+        userCategory = await this.prisma.user_categories.findUnique({
+          where: {
+            user_category_id: createTodoDto.user_category_id
+          }
+        });
+      }
 
       const startDate = new Date(createTodoDto.start_date);
       const endDate = new Date(createTodoDto.end_date);
 
-      if (user_plant && user_category) {
+      if (userPlant && userCategory) {
         const todo = await this.prisma.todos.create({
           data: {
             title: createTodoDto.title,
@@ -40,8 +45,8 @@ export class TodosService {
             start_date: startDate,
             end_date: endDate,
             user_id: userId,
-            user_plant_id: user_plant.user_plant_id,
-            user_category_id: user_category.user_category_id,
+            user_plant_id: userPlant.user_plant_id,
+            user_category_id: userCategory.user_category_id,
           }
         });
 
@@ -79,11 +84,11 @@ export class TodosService {
     }
   }
 
-  async findAll(user_id: number): Promise<SuccessResponse | FailResponse | ErrorResponse>  {
+  async findAll(userId: number): Promise<SuccessResponse | FailResponse | ErrorResponse>  {
     try {
       const todos = await this.prisma.todos.findMany({
         where: {
-          user_id: user_id
+          user_id: userId
         }
       });
 
@@ -110,12 +115,12 @@ export class TodosService {
     }
   }
 
-  async findOne(todo_id: number, user_id: number): Promise<SuccessResponse | FailResponse | ErrorResponse>  {
+  async findOne(todoId: number, userId: number): Promise<SuccessResponse | FailResponse | ErrorResponse>  {
     try {
       const todo = await this.prisma.todos.findUnique({
         where: {
-          user_id: user_id,
-          todo_id: todo_id
+          user_id: userId,
+          todo_id: todoId
         }
       });
       
