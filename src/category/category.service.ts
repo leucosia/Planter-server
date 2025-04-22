@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/
 import { CreateCategoryDto } from './dto/create.category.dto';
 import { UpdateCategoryDto } from './dto/update.category.dto';
 import { PrismaService } from 'src/prisma.client';
+import { logErrorToFile } from 'src/common/module/logger';
 
 @Injectable()
 export class CategoryService {
@@ -44,6 +45,7 @@ export class CategoryService {
       }
     } catch (error) {
       console.log(error);
+      logErrorToFile(error);
       return {
         result: 'error',
         message: 'INVALID_REQUEST'
@@ -71,6 +73,7 @@ export class CategoryService {
       }
     } catch(error) {
       console.log(error);
+      logErrorToFile(error);
       return {
         result: 'error',
         message: 'INVALID_REQUEST'
@@ -100,6 +103,7 @@ export class CategoryService {
       }
     } catch(error) {
       console.log(error);
+      logErrorToFile(error);
       return {
         result: 'error',
         message: 'INVALID_REQUEST'
@@ -161,6 +165,7 @@ export class CategoryService {
       }
     } catch (error) {
       console.log(error);
+      logErrorToFile(error);
       return {
         result: 'error',
         message: "INVALID_REQUEST"
@@ -219,6 +224,7 @@ export class CategoryService {
       }
     } catch(error) {
       console.log(error);
+      logErrorToFile(error);
       return {
         result: 'error',
         message: 'INVALID_REQUEST'
