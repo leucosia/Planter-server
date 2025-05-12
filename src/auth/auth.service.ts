@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { OAuth2Client } from 'google-auth-library';
 import { PrismaService } from 'src/prisma.client';
 import { AuthLoginResponse } from './dto/auth.login.response.dto'
@@ -256,6 +256,9 @@ export class AuthService {
     try {
       const verifiedUser = await this.verifyAppleToken(token);
 
+      if (!verifiedUser) {
+        throw new InternalServerErrorException('Apple 인증 실패')
+      }
       return this.login(
         verifiedUser.email,
         verifiedUser.name,
