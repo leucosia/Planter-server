@@ -128,6 +128,7 @@ export class AuthService {
         let userPlant = await this.prisma.user_plants.create({
           data: {
             user_id: user.user_id,
+            exp: 89
           },
         });
 
