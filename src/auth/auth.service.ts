@@ -35,7 +35,7 @@ export class AuthService {
 
   private async createAccessToken(payload: Payload): Promise<string> {
     const accessToken = this.jwtService.sign(payload, {
-       expiresIn: '3h',
+       expiresIn: '1d',
        secret: process.env.SECRET_KEY
       });
     return accessToken
@@ -128,6 +128,7 @@ export class AuthService {
         let userPlant = await this.prisma.user_plants.create({
           data: {
             user_id: user.user_id,
+            exp: 89
           },
         });
 

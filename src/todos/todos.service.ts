@@ -34,14 +34,18 @@ export class TodosService {
         });
       }
 
-      const startDate = new Date(createTodoDto.start_date);
-      const endDate = new Date(createTodoDto.end_date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // 날짜 값이 따로 없으면 today로 삽입
+      const startDate = createTodoDto.start_date ? new Date(createTodoDto.start_date) : new Date(today);
+      const endDate = createTodoDto.end_date ? new Date(createTodoDto.end_date) : new Date(today);
 
       if (userPlant && userCategory) {
         const todo = await this.prisma.todos.create({
           data: {
             title: createTodoDto.title,
-            description: createTodoDto.description,
+            description: createTodoDto.description ?? null,
             start_date: startDate,
             end_date: endDate,
             user_id: userId,
