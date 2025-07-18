@@ -23,30 +23,22 @@ export class TodosService {
         }
       });
 
-      // 정상적인 user_category_id인지 체크
-      let userCategory: user_categories | null = null;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-      if (createTodoDto.user_category_id !== undefined && createTodoDto.user_category_id !== null) {
-        userCategory = await this.prisma.user_categories.findUnique({
-          where: {
-            user_category_id: createTodoDto.user_category_id
-          }
-        });
-      }
+      // 날짜 값이 따로 없으면 today로 삽입
+      const startDate = createTodoDto.start_date ? new Date(createTodoDto.start_date) : new Date(today);
+      const endDate = createTodoDto.end_date ? new Date(createTodoDto.end_date) : new Date(today);
 
-      const startDate = new Date(createTodoDto.start_date);
-      const endDate = new Date(createTodoDto.end_date);
-
-      if (userPlant && userCategory) {
+      if (userPlant) {
         const todo = await this.prisma.todos.create({
           data: {
             title: createTodoDto.title,
-            description: createTodoDto.description,
+            description: createTodoDto.description ?? null,
             start_date: startDate,
             end_date: endDate,
             user_id: userId,
             user_plant_id: userPlant.user_plant_id,
-            user_category_id: userCategory.user_category_id,
           }
         });
 
@@ -159,6 +151,7 @@ export class TodosService {
       if (todo) {
         const updateStartDate = new Date(updateTodoDto.start_date);
         const updateEndDate = new Date(updateTodoDto.end_date);
+        let userCategory: user_categories | null = null;
 
         const newTodo = await this.prisma.todos.update({
           where: {

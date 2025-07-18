@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { OAuth2Client } from 'google-auth-library';
 import { PrismaService } from 'src/prisma.client';
 import { AuthLoginResponse } from './dto/auth.login.response.dto'
@@ -35,7 +35,7 @@ export class AuthService {
 
   private async createAccessToken(payload: Payload): Promise<string> {
     const accessToken = this.jwtService.sign(payload, {
-       expiresIn: '3h',
+       expiresIn: '1d',
        secret: process.env.SECRET_KEY
       });
     return accessToken
@@ -128,6 +128,7 @@ export class AuthService {
         let userPlant = await this.prisma.user_plants.create({
           data: {
             user_id: user.user_id,
+            exp: 89
           },
         });
 
@@ -256,6 +257,9 @@ export class AuthService {
     try {
       const verifiedUser = await this.verifyAppleToken(token);
 
+      if (!verifiedUser) {
+        throw new InternalServerErrorException('Apple 인증 실패')
+      }
       return this.login(
         verifiedUser.email,
         verifiedUser.name,
