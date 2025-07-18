@@ -23,17 +23,6 @@ export class TodosService {
         }
       });
 
-      // 정상적인 user_category_id인지 체크
-      let userCategory: user_categories | null = null;
-
-      if (createTodoDto.user_category_id !== undefined && createTodoDto.user_category_id !== null) {
-        userCategory = await this.prisma.user_categories.findUnique({
-          where: {
-            user_category_id: createTodoDto.user_category_id
-          }
-        });
-      }
-
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -41,7 +30,7 @@ export class TodosService {
       const startDate = createTodoDto.start_date ? new Date(createTodoDto.start_date) : new Date(today);
       const endDate = createTodoDto.end_date ? new Date(createTodoDto.end_date) : new Date(today);
 
-      if (userPlant && userCategory) {
+      if (userPlant) {
         const todo = await this.prisma.todos.create({
           data: {
             title: createTodoDto.title,
@@ -50,7 +39,6 @@ export class TodosService {
             end_date: endDate,
             user_id: userId,
             user_plant_id: userPlant.user_plant_id,
-            user_category_id: userCategory.user_category_id,
           }
         });
 
@@ -163,6 +151,7 @@ export class TodosService {
       if (todo) {
         const updateStartDate = new Date(updateTodoDto.start_date);
         const updateEndDate = new Date(updateTodoDto.end_date);
+        let userCategory: user_categories | null = null;
 
         const newTodo = await this.prisma.todos.update({
           where: {
